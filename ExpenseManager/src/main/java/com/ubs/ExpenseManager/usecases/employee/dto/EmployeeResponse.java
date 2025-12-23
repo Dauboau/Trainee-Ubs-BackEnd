@@ -1,13 +1,15 @@
 package com.ubs.ExpenseManager.usecases.employee.dto;
 
+import java.util.UUID;
+
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.enums.Role;
 
 public record EmployeeResponse(
-    Long id,
+    UUID id,
     String name,
     String email,
-    Long departmentId,
+    String departmentId,
     String departmentName,
     Role role
 ) {
@@ -16,8 +18,8 @@ public record EmployeeResponse(
             employee.getId(),
             employee.getName(),
             employee.getEmail(),
-            employee.getDepartment() != null ? employee.getDepartment().getId() : null,
-            employee.getDepartment() != null ? employee.getDepartment().getName() : null,
+            employee.getDepartment(),
+            employee.getDepartment(),
             employee.getRole()
         );
     }

@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ubs.ExpenseManager.usecases.alert.dto.AlertResponse;
 import com.ubs.ExpenseManager.usecases.alert.AlertUseCase;
+import com.ubs.ExpenseManager.entities.alert.enums.AlertStatus;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/alerts")
@@ -28,30 +30,30 @@ public class AlertController {
         return ResponseEntity.ok(alertUseCase.findAll());
     }
 
-    @GetMapping("/department/{departmentId}")
-    @Operation(summary = "Buscar alertas por departamento", description = "Retorna todos os alertas de um departamento específico")
+    @GetMapping("/expense/{expenseId}")
+    @Operation(summary = "Buscar alertas por despesa", description = "Retorna todos os alertas de uma despesa específica")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Lista de alertas retornada com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Departamento não encontrado")
+        @ApiResponse(responseCode = "404", description = "Despesa não encontrada")
     })
-    public ResponseEntity<List<AlertResponse>> findByDepartmentId(@PathVariable Long departmentId) {
-        return ResponseEntity.ok(alertUseCase.findByDepartmentId(departmentId));
+    public ResponseEntity<List<AlertResponse>> findByExpenseId(@PathVariable UUID expenseId) {
+        return ResponseEntity.ok(alertUseCase.findByExpenseId(expenseId));
     }
 
-    @GetMapping("/unread")
-    @Operation(summary = "Buscar alertas não lidos", description = "Retorna todos os alertas que ainda não foram lidos")
-    @ApiResponse(responseCode = "200", description = "Lista de alertas não lidos retornada com sucesso")
-    public ResponseEntity<List<AlertResponse>> findUnread() {
-        return ResponseEntity.ok(alertUseCase.findUnread());
+    @GetMapping("/status/{status}")
+    @Operation(summary = "Buscar alertas por status", description = "Retorna todos os alertas com um status específico (NEW, RESOLVED)")
+    @ApiResponse(responseCode = "200", description = "Lista de alertas retornada com sucesso")
+    public ResponseEntity<List<AlertResponse>> findByStatus(@PathVariable AlertStatus status) {
+        return ResponseEntity.ok(alertUseCase.findByStatus(status));
     }
 
-    @PatchMapping("/{id}/read")
-    @Operation(summary = "Marcar alerta como lido", description = "Marca um alerta específico como lido")
+    @PatchMapping("/{id}/resolve")
+    @Operation(summary = "Resolver alerta", description = "Marca um alerta específico como resolvido")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Alerta marcado como lido com sucesso"),
+        @ApiResponse(responseCode = "200", description = "Alerta marcado como resolvido com sucesso"),
         @ApiResponse(responseCode = "404", description = "Alerta não encontrado")
     })
-    public ResponseEntity<AlertResponse> markAsRead(@PathVariable Long id) {
-        return ResponseEntity.ok(alertUseCase.markAsRead(id));
+    public ResponseEntity<AlertResponse> resolve(@PathVariable UUID id) {
+        return ResponseEntity.ok(alertUseCase.resolve(id));
     }
 }

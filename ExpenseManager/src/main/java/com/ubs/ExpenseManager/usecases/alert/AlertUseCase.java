@@ -6,12 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ubs.ExpenseManager.usecases.alert.dto.AlertResponse;
 import com.ubs.ExpenseManager.entities.alert.Alert;
+import com.ubs.ExpenseManager.entities.alert.enums.AlertStatus;
 import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
 import com.ubs.ExpenseManager.entities.alert.repository.AlertRepository;
-import com.ubs.ExpenseManager.entities.department.Department;
-import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
+import com.ubs.ExpenseManager.entities.expense.Expense;
+import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,14 +21,14 @@ import java.util.List;
 public class AlertUseCase {
 
     private final AlertRepository alertRepository;
-    private final DepartmentRepository departmentRepository;
+    private final ExpenseRepository expenseRepository;
 
-    public AlertResponse create(Long departmentId, AlertType type, String message) {
-        Department department = departmentRepository.findById(departmentId)
-            .orElseThrow(() -> new IllegalArgumentException("Departamento não encontrado"));
+    public AlertResponse create(UUID expenseId, AlertType type, String message) {
+        Expense expense = expenseRepository.findById(expenseId)
+            .orElseThrow(() -> new IllegalArgumentException("Despesa não encontrada"));
 
         Alert alert = new Alert();
-        alert.setDepartment(department);
+        alert.setExpense(expense);
         alert.setType(type);
         alert.setMessage(message);
 
@@ -41,24 +43,24 @@ public class AlertUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<AlertResponse> findByDepartmentId(Long departmentId) {
-        return alertRepository.findByDepartmentId(departmentId).stream()
+    public List<AlertResponse> findByExpenseId(UUID expenseId) {
+        return alertRepository.findByExpenseId(expenseId).stream()
             .map(AlertResponse::fromEntity)
             .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<AlertResponse> findUnread() {
-        return alertRepository.findByIsReadFalse().stream()
+    public List<AlertResponse> findByStatus(AlertStatus status) {
+        return alertRepository.findByStatus(status).stream()
             .map(AlertResponse::fromEntity)
             .toList();
     }
 
-    public AlertResponse markAsRead(Long id) {
+    public AlertResponse resolve(UUID id) {
         Alert alert = alertRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Alerta não encontrado"));
 
-        alert.setIsRead(true);
+        alert.setStatus(AlertStatus.RESOLVED);
         return AlertResponse.fromEntity(alertRepository.save(alert));
     }
 }

@@ -5,17 +5,15 @@ import java.math.BigDecimal;
 import com.ubs.ExpenseManager.entities.department.Department;
 
 public record DepartmentResponse(
-    Long id,
     String name,
-    BigDecimal monthlyBudget,
-    Integer employeeCount
+    String currency,
+    BigDecimal monthlyBudget
 ) {
     public static DepartmentResponse fromEntity(Department department) {
         return new DepartmentResponse(
-            department.getId(),
             department.getName(),
-            department.getMonthlyBudget(),
-            department.getEmployees() != null ? department.getEmployees().size() : 0
+            department.getCurrency(),
+            department.getMonthlyBudget()
         );
     }
 }

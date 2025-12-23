@@ -14,6 +14,7 @@ import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeResponse;
 import com.ubs.ExpenseManager.usecases.employee.EmployeeUseCase;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -46,7 +47,7 @@ public class EmployeeController {
         @ApiResponse(responseCode = "200", description = "Funcionário encontrado"),
         @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     })
-    public ResponseEntity<EmployeeResponse> findById(@PathVariable Long id) {
+    public ResponseEntity<EmployeeResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(employeeUseCase.findById(id));
     }
 
@@ -56,7 +57,7 @@ public class EmployeeController {
         @ApiResponse(responseCode = "204", description = "Funcionário deletado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         employeeUseCase.delete(id);
         return ResponseEntity.noContent().build();
     }

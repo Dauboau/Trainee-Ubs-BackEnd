@@ -40,35 +40,35 @@ public class DepartmentController {
         return ResponseEntity.ok(departmentUseCase.findAll());
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Buscar departamento por ID", description = "Retorna um departamento específico pelo ID")
+    @GetMapping("/{name}")
+    @Operation(summary = "Buscar departamento por nome", description = "Retorna um departamento específico pelo nome")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Departamento encontrado"),
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado")
     })
-    public ResponseEntity<DepartmentResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(departmentUseCase.findById(id));
+    public ResponseEntity<DepartmentResponse> findById(@PathVariable String name) {
+        return ResponseEntity.ok(departmentUseCase.findById(name));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{name}")
     @Operation(summary = "Atualizar departamento", description = "Atualiza os dados de um departamento existente")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Departamento atualizado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
-    public ResponseEntity<DepartmentResponse> update(@PathVariable Long id, @RequestBody DepartmentRequest request) {
-        return ResponseEntity.ok(departmentUseCase.update(id, request));
+    public ResponseEntity<DepartmentResponse> update(@PathVariable String name, @RequestBody DepartmentRequest request) {
+        return ResponseEntity.ok(departmentUseCase.update(name, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{name}")
     @Operation(summary = "Deletar departamento", description = "Remove um departamento do sistema")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Departamento deletado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        departmentUseCase.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable String name) {
+        departmentUseCase.delete(name);
         return ResponseEntity.noContent().build();
     }
 }

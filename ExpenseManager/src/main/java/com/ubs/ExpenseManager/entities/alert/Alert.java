@@ -1,12 +1,15 @@
 package com.ubs.ExpenseManager.entities.alert;
 
+import com.ubs.ExpenseManager.config.UuidGenerator;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+import com.ubs.ExpenseManager.entities.alert.enums.AlertStatus;
 import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
-import com.ubs.ExpenseManager.entities.department.Department;
+import com.ubs.ExpenseManager.entities.expense.Expense;
 
 @Entity
 @Table(name = "alerts")
@@ -18,29 +21,45 @@ import com.ubs.ExpenseManager.entities.department.Department;
 public class Alert {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(columnDefinition = "UUID")
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
+    @JoinColumn(name = "expense_id", nullable = false)
+    private Expense expense;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AlertType type;
 
-    @Column(nullable = false)
+    @Column
     private String message;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean isRead;
+    private AlertStatus status;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column
+    private LocalDateTime updatedAt;
+
     @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        isRead = false;
+    public void prePersist() {
+        if (id == null) {
+            id = UuidGenerator.generateV7();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = AlertStatus.NEW;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

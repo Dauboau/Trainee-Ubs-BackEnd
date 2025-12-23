@@ -16,5 +16,5 @@ CREATE TABLE alerts (
 
     CONSTRAINT uk_alert_expense_type UNIQUE (expense_id, type),
 
-    CONSTRAINT fk_alert_expense FOREIGN KEY (expense_id) REFERENCES expenses(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_alert_expense FOREIGN KEY (expense_id) REFERENCES expenses(id) ON UPDATE CASCADE ON DELETE CASCADE
 );

@@ -34,14 +34,14 @@ public class DepartmentUseCase {
     }
 
     @Transactional(readOnly = true)
-    public DepartmentResponse findById(Long id) {
-        return departmentRepository.findById(id)
+    public DepartmentResponse findById(String name) {
+        return departmentRepository.findById(name)
             .map(DepartmentResponse::fromEntity)
             .orElseThrow(() -> new IllegalArgumentException("Departamento não encontrado"));
     }
 
-    public DepartmentResponse update(Long id, DepartmentRequest request) {
-        Department department = departmentRepository.findById(id)
+    public DepartmentResponse update(String name, DepartmentRequest request) {
+        Department department = departmentRepository.findById(name)
             .orElseThrow(() -> new IllegalArgumentException("Departamento não encontrado"));
 
         department.setName(request.name());
@@ -50,10 +50,10 @@ public class DepartmentUseCase {
         return DepartmentResponse.fromEntity(departmentRepository.save(department));
     }
 
-    public void delete(Long id) {
-        if (!departmentRepository.existsById(id)) {
+    public void delete(String name) {
+        if (!departmentRepository.existsById(name)) {
             throw new IllegalArgumentException("Departamento não encontrado");
         }
-        departmentRepository.deleteById(id);
+        departmentRepository.deleteById(name);
     }
 }

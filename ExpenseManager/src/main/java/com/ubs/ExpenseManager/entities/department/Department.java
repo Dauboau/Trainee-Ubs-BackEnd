@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.ubs.ExpenseManager.entities.employee.Employee;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "departments")
@@ -15,19 +12,34 @@ import com.ubs.ExpenseManager.entities.employee.Employee;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "name")
 public class Department {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
+    @Column(length = 100)
     private String name;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(nullable = false)
+    private String currency;
+
+    @Column(name = "monthly_budget", nullable = false, precision = 15, scale = 2)
     private BigDecimal monthlyBudget;
 
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
-    private List<Employee> employees = new ArrayList<>();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

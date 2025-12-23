@@ -13,6 +13,7 @@ import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class ExpenseUseCase {
         expense.setDescription(request.description());
         expense.setAmount(request.amount());
         expense.setCategory(request.category());
-        expense.setExpenseDate(request.expenseDate());
+        expense.setDate(request.expenseDate());
         expense.setReceiptUrl(request.receiptUrl());
 
         return ExpenseResponse.fromEntity(expenseRepository.save(expense));
@@ -45,39 +46,16 @@ public class ExpenseUseCase {
     }
 
     @Transactional(readOnly = true)
-    public ExpenseResponse findById(Long id) {
+    public ExpenseResponse findById(UUID id) {
         return expenseRepository.findById(id)
             .map(ExpenseResponse::fromEntity)
             .orElseThrow(() -> new IllegalArgumentException("Despesa não encontrada"));
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseResponse> findByEmployeeId(Long employeeId) {
+    public List<ExpenseResponse> findByEmployeeId(UUID employeeId) {
         return expenseRepository.findByEmployeeId(employeeId).stream()
             .map(ExpenseResponse::fromEntity)
             .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ExpenseResponse> findByStatus(ExpenseStatus status) {
-        return expenseRepository.findByStatus(status).stream()
-            .map(ExpenseResponse::fromEntity)
-            .toList();
-    }
-
-    public ExpenseResponse approve(Long id) {
-        Expense expense = expenseRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Despesa não encontrada"));
-
-        expense.setStatus(ExpenseStatus.APPROVED);
-        return ExpenseResponse.fromEntity(expenseRepository.save(expense));
-    }
-
-    public ExpenseResponse reject(Long id) {
-        Expense expense = expenseRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Despesa não encontrada"));
-
-        expense.setStatus(ExpenseStatus.REJECTED);
-        return ExpenseResponse.fromEntity(expenseRepository.save(expense));
     }
 }

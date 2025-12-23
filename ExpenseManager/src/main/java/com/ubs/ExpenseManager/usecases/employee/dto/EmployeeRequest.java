@@ -6,6 +6,6 @@ public record EmployeeRequest(
     String name,
     String email,
     String password,
-    Long departmentId,
+    String departmentId,
     Role role
 ) {}
