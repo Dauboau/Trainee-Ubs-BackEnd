@@ -1,13 +1,13 @@
-package com.example.RefundManager;
+package com.example.expensemanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RefundManagerApplication {
+public class ExpenseManagerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RefundManagerApplication.class, args);
+		SpringApplication.run(ExpenseManagerApplication.class, args);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.example.RefundManager.model.enums;
+package com.example.expensemanager.model.enums;
 
 public enum Role {
     EMPLOYEE("ROLE_EMPLOYEE"),

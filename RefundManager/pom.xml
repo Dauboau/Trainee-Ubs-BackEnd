@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>RefundManager</artifactId>
+	<artifactId>expensemanager</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>RefundManager</name>
-	<description>Demo project for Spring Boot</description>
+	<name>ExpenseManager</name>
+	<description>Backend application for managing employee expenses with approval workflows and budget control</description>
 	<url/>
 	<licenses>
 		<license/>
