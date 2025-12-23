@@ -14,32 +14,38 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${server.port:8080}")
+    @Value("${server.port}")
     private String serverPort;
 
     @Bean
     public OpenAPI expenseManagerOpenAPI() {
+        Server localServer = new Server();
+        localServer.setUrl("http://localhost:" + serverPort);
+        localServer.setDescription("Local Server");
+
         Server devServer = new Server();
-        devServer.setUrl("http://localhost:" + serverPort);
+        devServer.setUrl("www.dev.ubs.api");
         devServer.setDescription("Development Server");
+
+        Server prodServer = new Server();
+        prodServer.setUrl("www.prod.ubs.api");
+        prodServer.setDescription("Production Server");
 
         Contact contact = new Contact();
         contact.setName("UBS Expense Manager Team");
-        contact.setEmail("expense-manager@ubs.com");
 
         License license = new License()
-                .name("MIT License")
-                .url("https://choosealicense.com/licenses/mit/");
+                .name("© UBS 1998 - 2025. All rights reserved.");
 
         Info info = new Info()
                 .title("UBS Expense Manager API")
                 .version("1.0.0")
-                .description("API para gerenciamento de despesas de funcionários")
+                .description("Employee Expense Management System API Documentation")
                 .contact(contact)
                 .license(license);
 
         return new OpenAPI()
                 .info(info)
-                .servers(List.of(devServer));
+                .servers(List.of(localServer, devServer, prodServer));
     }
 }
