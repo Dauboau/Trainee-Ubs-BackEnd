@@ -6,7 +6,7 @@ CREATE TYPE expense_category AS ENUM ('TRAVEL', 'MEAL', 'TRANSPORT', 'OTHER');
 
 -- Create expenses table
 CREATE TABLE expenses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
+    id UUID PRIMARY KEY,
     employee_id UUID NOT NULL,
     date DATE NOT NULL,
     category expense_category NOT NULL,

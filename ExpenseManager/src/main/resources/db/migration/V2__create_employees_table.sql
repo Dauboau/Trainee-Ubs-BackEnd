@@ -1,15 +1,12 @@
 -- Enable citext extension for case-insensitive text
 CREATE EXTENSION IF NOT EXISTS citext;
 
--- Enable UUID v7 extension
-CREATE EXTENSION IF NOT EXISTS pg_uuidv7;
-
 -- Create role enum type
 CREATE TYPE employee_role AS ENUM ('EMPLOYEE', 'MANAGER', 'FINANCE', 'ADMIN');
 
 -- Create employees table
 CREATE TABLE employees (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
+    id UUID PRIMARY KEY,
     email CITEXT NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     manager_id UUID NOT NULL,

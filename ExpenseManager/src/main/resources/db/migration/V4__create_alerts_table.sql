@@ -6,7 +6,7 @@ CREATE TYPE alert_status AS ENUM ('NEW', 'RESOLVED');
 
 -- Create alerts table
 CREATE TABLE alerts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
+    id UUID PRIMARY KEY,
     expense_id UUID NOT NULL,
     type alert_type NOT NULL,
     message VARCHAR(255),
