@@ -28,3 +28,9 @@ replay_pid*
 *.artifact
 report.html
 report.json
+# Environment files
+.env.dev
+.env.prod
+
+# Docker
+.dockerignore
