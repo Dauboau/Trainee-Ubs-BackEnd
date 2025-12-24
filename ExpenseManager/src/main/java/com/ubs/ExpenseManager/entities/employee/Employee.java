@@ -5,6 +5,8 @@ import com.ubs.ExpenseManager.entities.employee.enums.Role;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -51,9 +53,11 @@ public class Employee {
     @Column(name = "first_time", nullable = false)
     private Boolean firstTime;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -62,19 +66,11 @@ public class Employee {
         if (id == null) {
             id = UuidGenerator.generateV7();
         }
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
         if (active == null) {
             active = true;
         }
         if (firstTime == null) {
             firstTime = true;
         }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

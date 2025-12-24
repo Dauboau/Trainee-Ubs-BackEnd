@@ -3,7 +3,9 @@ package com.ubs.ExpenseManager.entities.expense;
 import com.ubs.ExpenseManager.config.UuidGenerator;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
@@ -77,9 +79,11 @@ public class Expense {
     @Column(name = "receipt_metadata", columnDefinition = "jsonb")
     private String receiptMetadata;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -88,16 +92,8 @@ public class Expense {
         if (id == null) {
             id = UuidGenerator.generateV7();
         }
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
         if (revision == null) {
             revision = false;
         }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

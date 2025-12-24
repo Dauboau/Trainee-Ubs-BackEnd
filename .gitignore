@@ -34,3 +34,7 @@ report.json
 
 # Docker
 .dockerignore
+
+# macOS
+.DS_Store
+**/.DS_Store

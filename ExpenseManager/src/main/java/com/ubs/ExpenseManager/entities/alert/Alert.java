@@ -3,6 +3,8 @@ package com.ubs.ExpenseManager.entities.alert;
 import com.ubs.ExpenseManager.config.UuidGenerator;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -39,9 +41,11 @@ public class Alert {
     @Column(nullable = false)
     private AlertStatus status;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column
     private LocalDateTime updatedAt;
 
@@ -50,16 +54,8 @@ public class Alert {
         if (id == null) {
             id = UuidGenerator.generateV7();
         }
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
         if (status == null) {
             status = AlertStatus.NEW;
         }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }
