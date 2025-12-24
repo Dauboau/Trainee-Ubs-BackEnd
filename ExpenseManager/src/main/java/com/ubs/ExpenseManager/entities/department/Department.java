@@ -1,5 +1,6 @@
 package com.ubs.ExpenseManager.entities.department;
 
+import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,8 +22,9 @@ public class Department {
     @Column(length = 100)
     private String name;
 
-    @Column(nullable = false)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "currency_code")
+    private CurrencyCode currency;
 
     @Column(name = "monthly_budget", nullable = false, precision = 15, scale = 2)
     private BigDecimal monthlyBudget;
