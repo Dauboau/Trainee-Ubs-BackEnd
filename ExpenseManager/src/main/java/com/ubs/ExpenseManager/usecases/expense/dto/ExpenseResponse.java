@@ -1,10 +1,11 @@
 package com.ubs.ExpenseManager.usecases.expense.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 
@@ -12,10 +13,10 @@ public record ExpenseResponse(
     UUID id,
     UUID employeeId,
     String employeeName,
-    LocalDate date,
+    OffsetDateTime date,
     ExpenseCategory category,
     BigDecimal amount,
-    String currency,
+    CurrencyCode currency,
     String description,
     String receiptUrl,
     LocalDateTime createdAt

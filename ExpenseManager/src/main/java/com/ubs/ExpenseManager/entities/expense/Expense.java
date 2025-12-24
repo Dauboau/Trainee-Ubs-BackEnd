@@ -1,6 +1,7 @@
 package com.ubs.ExpenseManager.entities.expense;
 
 import com.ubs.ExpenseManager.config.UuidV7;
+import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,11 +10,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import com.ubs.ExpenseManager.entities.employee.Employee;
+import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 
 @Entity
@@ -35,7 +39,7 @@ public class Expense {
     private Employee employee;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private OffsetDateTime date;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,8 +48,9 @@ public class Expense {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
-    @Column(nullable = false)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "currency_code")
+    private CurrencyCode currency;
 
     @Column(length = 510)
     private String description;
@@ -54,21 +59,23 @@ public class Expense {
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
-    @Column(name = "manager_decision")
-    private String managerDecision;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "manager_decision", columnDefinition = "decision_type")
+    private DecisionType managerDecision;
 
     @Column(name = "manager_decision_date")
-    private LocalDateTime managerDecisionDate;
+    private OffsetDateTime managerDecisionDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "finance_id")
     private Employee finance;
 
-    @Column(name = "finance_decision")
-    private String financeDecision;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "finance_decision", columnDefinition = "decision_type")
+    private DecisionType financeDecision;
 
     @Column(name = "finance_decision_date")
-    private LocalDateTime financeDecisionDate;
+    private OffsetDateTime financeDecisionDate;
 
     @Column(nullable = false)
     private Boolean revision;
