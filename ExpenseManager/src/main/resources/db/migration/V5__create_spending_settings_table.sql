@@ -1,8 +1,11 @@
+-- Create spending type enum
+CREATE TYPE spending_type AS ENUM ('DAILY', 'MONTHLY');
+
 -- Create spending_settings table
 CREATE TABLE spending_settings (
     department VARCHAR(100) NOT NULL,
     category expense_category NOT NULL,
-    type expense_category NOT NULL,
+    type spending_type NOT NULL,
     budget DECIMAL(15,2) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
