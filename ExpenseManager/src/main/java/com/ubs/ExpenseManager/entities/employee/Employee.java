@@ -63,14 +63,4 @@ public class Employee {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        if (active == null) {
-            active = true;
-        }
-        if (firstTime == null) {
-            firstTime = true;
-        }
-    }
 }
