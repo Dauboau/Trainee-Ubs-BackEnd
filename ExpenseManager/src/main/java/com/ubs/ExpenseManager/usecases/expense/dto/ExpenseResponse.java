@@ -1,8 +1,8 @@
 package com.ubs.ExpenseManager.usecases.expense.dto;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
@@ -19,7 +19,7 @@ public record ExpenseResponse(
     CurrencyCode currency,
     String description,
     String receiptUrl,
-    LocalDateTime createdAt
+    Instant createdAt
 ) {
     public static ExpenseResponse fromEntity(Expense expense) {
         return new ExpenseResponse(

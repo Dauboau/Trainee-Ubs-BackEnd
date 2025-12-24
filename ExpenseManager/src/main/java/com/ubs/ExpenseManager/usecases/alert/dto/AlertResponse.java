@@ -1,6 +1,6 @@
 package com.ubs.ExpenseManager.usecases.alert.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import com.ubs.ExpenseManager.entities.alert.Alert;
@@ -13,8 +13,8 @@ public record AlertResponse(
     AlertType type,
     String message,
     AlertStatus status,
-    LocalDateTime createdAt,
-    LocalDateTime updatedAt
+    Instant createdAt,
+    Instant updatedAt
 ) {
     public static AlertResponse fromEntity(Alert alert) {
         return new AlertResponse(
