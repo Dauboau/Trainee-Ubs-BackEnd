@@ -1,6 +1,7 @@
 package com.ubs.ExpenseManager.entities.alert;
 
-import com.ubs.ExpenseManager.config.UuidGenerator;
+import com.ubs.ExpenseManager.config.UuidV7;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,6 +24,7 @@ import com.ubs.ExpenseManager.entities.expense.Expense;
 public class Alert {
 
     @Id
+    @UuidV7
     @Column(columnDefinition = "UUID")
     private UUID id;
 
@@ -51,9 +53,6 @@ public class Alert {
 
     @PrePersist
     public void prePersist() {
-        if (id == null) {
-            id = UuidGenerator.generateV7();
-        }
         if (status == null) {
             status = AlertStatus.NEW;
         }

@@ -1,6 +1,6 @@
 package com.ubs.ExpenseManager.entities.expense;
 
-import com.ubs.ExpenseManager.config.UuidGenerator;
+import com.ubs.ExpenseManager.config.UuidV7;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,6 +26,7 @@ import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 public class Expense {
 
     @Id
+    @UuidV7
     @Column(columnDefinition = "UUID")
     private UUID id;
 
@@ -89,9 +90,6 @@ public class Expense {
 
     @PrePersist
     public void prePersist() {
-        if (id == null) {
-            id = UuidGenerator.generateV7();
-        }
         if (revision == null) {
             revision = false;
         }

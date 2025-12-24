@@ -1,6 +1,6 @@
 package com.ubs.ExpenseManager.entities.employee;
 
-import com.ubs.ExpenseManager.config.UuidGenerator;
+import com.ubs.ExpenseManager.config.UuidV7;
 import com.ubs.ExpenseManager.entities.employee.enums.Role;
 
 import jakarta.persistence.*;
@@ -21,6 +21,7 @@ import java.util.UUID;
 public class Employee {
 
     @Id
+    @UuidV7
     @Column(columnDefinition = "UUID")
     private UUID id;
 
@@ -63,9 +64,6 @@ public class Employee {
 
     @PrePersist
     public void prePersist() {
-        if (id == null) {
-            id = UuidGenerator.generateV7();
-        }
         if (active == null) {
             active = true;
         }

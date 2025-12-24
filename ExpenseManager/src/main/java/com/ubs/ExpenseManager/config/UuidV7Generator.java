@@ -1,9 +1,10 @@
 package com.ubs.ExpenseManager.config;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import java.util.UUID;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.id.IdentifierGenerator;
 
-public class UuidGenerator {
+public class UuidV7Generator implements IdentifierGenerator {
     
     /**
      * Generates a time-ordered UUID v7.
@@ -11,7 +12,8 @@ public class UuidGenerator {
      * 
      * @return A new UUID v7
      */
-    public static UUID generateV7() {
+    @Override
+    public Object generate(SharedSessionContractImplementor session, Object object) {
         return UuidCreator.getTimeOrderedEpoch();
     }
 }
