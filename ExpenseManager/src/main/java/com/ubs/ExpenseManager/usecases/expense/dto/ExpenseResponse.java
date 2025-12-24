@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
 
 public record ExpenseResponse(
     UUID id,
@@ -19,7 +20,8 @@ public record ExpenseResponse(
     CurrencyCode currency,
     String description,
     String receiptUrl,
-    Instant createdAt
+    Instant createdAt,
+    ExpenseStatus status
 ) {
     public static ExpenseResponse fromEntity(Expense expense) {
         return new ExpenseResponse(
@@ -32,7 +34,8 @@ public record ExpenseResponse(
             expense.getCurrency(),
             expense.getDescription(),
             expense.getReceiptUrl(),
-            expense.getCreatedAt()
+            expense.getCreatedAt(),
+            expense.getStatus()
         );
     }
 }

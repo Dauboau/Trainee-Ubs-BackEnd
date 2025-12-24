@@ -17,6 +17,7 @@ import java.util.UUID;
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
 
 @Entity
 @Table(name = "expenses")
@@ -92,4 +93,21 @@ public class Expense {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Transient
+    public ExpenseStatus getStatus() {        
+        if (managerDecision == DecisionType.REJECTED || financeDecision == DecisionType.REJECTED) {
+            return ExpenseStatus.REJECTED;
+        }
+        
+        if (managerDecision == DecisionType.APPROVED && financeDecision == null) {
+            return ExpenseStatus.APPROVED_BY_MANAGER;
+        }
+        
+        if (managerDecision == DecisionType.APPROVED && financeDecision == DecisionType.APPROVED) {
+            return ExpenseStatus.APPROVED_BY_FINANCE;
+        }
+        
+        return ExpenseStatus.PENDING;
+    }
 }
