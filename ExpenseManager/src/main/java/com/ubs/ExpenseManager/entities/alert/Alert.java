@@ -33,14 +33,14 @@ public class Alert {
     private Expense expense;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "alert_type")
     private AlertType type;
 
     @Column
     private String message;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "alert_status")
     private AlertStatus status;
 
     @CreationTimestamp
@@ -50,11 +50,4 @@ public class Alert {
     @UpdateTimestamp
     @Column
     private Instant updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        if (status == null) {
-            status = AlertStatus.NEW;
-        }
-    }
 }
