@@ -9,7 +9,6 @@ public record EmployeeResponse(
     UUID id,
     String name,
     String email,
-    String departmentId,
     String departmentName,
     Role role
 ) {
@@ -18,8 +17,7 @@ public record EmployeeResponse(
             employee.getId(),
             employee.getName(),
             employee.getEmail(),
-            employee.getDepartment(),
-            employee.getDepartment(),
+            employee.getDepartment().getName(),
             employee.getRole()
         );
     }

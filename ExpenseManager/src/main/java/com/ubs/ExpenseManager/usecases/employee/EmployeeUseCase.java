@@ -27,11 +27,14 @@ public class EmployeeUseCase {
             throw new IllegalArgumentException("Email já cadastrado");
         }
 
+        Department department = departmentRepository.findById(request.departmentId())
+            .orElseThrow(() -> new IllegalArgumentException("Departamento não encontrado"));
+
         Employee employee = new Employee();
         employee.setName(request.name());
         employee.setEmail(request.email());
         employee.setPassword(request.password()); // TODO: Hash password
-        employee.setDepartment(request.departmentId());
+        employee.setDepartment(department);
         employee.setRole(request.role());
 
         return EmployeeResponse.fromEntity(employeeRepository.save(employee));

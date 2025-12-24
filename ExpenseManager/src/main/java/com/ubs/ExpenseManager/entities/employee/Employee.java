@@ -1,6 +1,7 @@
 package com.ubs.ExpenseManager.entities.employee;
 
 import com.ubs.ExpenseManager.config.UuidV7;
+import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.employee.enums.Role;
 
 import jakarta.persistence.*;
@@ -42,8 +43,9 @@ public class Employee {
     @Column(nullable = false)
     private Role role;
 
-    @Column(nullable = false, length = 100)
-    private String department;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department", referencedColumnName = "name", nullable = false)
+    private Department department;
 
     @Column(nullable = false)
     private String position;
