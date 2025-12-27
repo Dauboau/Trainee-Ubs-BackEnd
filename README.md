@@ -3,8 +3,6 @@ Desenvolvimento do projeto para o processo seletivo Trainee UBS 2026.
 
 ## Como Executar o Backend
 
-Solicite ao administrador que seu ip seja adicionado aqueles com autorização de acesso ao banco de dados.
-
 Abrir a pasta "ExpenseManager" no terminal.
 
 Adicionar Variáveis de Ambiente:
