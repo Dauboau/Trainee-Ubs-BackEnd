@@ -8,6 +8,7 @@ import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 
 public record ExpenseRequest(
     UUID employeeId,
+    String departmentName,
     String description,
     BigDecimal amount,
     ExpenseCategory category,
