@@ -38,3 +38,4 @@ report.json
 # macOS
 .DS_Store
 **/.DS_Store
+*.key
