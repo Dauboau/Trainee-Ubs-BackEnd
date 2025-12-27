@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
@@ -36,6 +37,10 @@ public class Expense {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department", nullable = false)
+    private Department department;
 
     @Column(nullable = false)
     private OffsetDateTime date;
