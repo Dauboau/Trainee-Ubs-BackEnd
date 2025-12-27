@@ -8,7 +8,6 @@ CREATE TYPE expense_category AS ENUM ('TRAVEL', 'MEAL', 'TRANSPORT', 'OTHER');
 CREATE TABLE expenses (
     id UUID PRIMARY KEY,
     employee_id UUID NOT NULL,
-    department VARCHAR(100) NOT NULL,
     date TIMESTAMP WITH TIME ZONE NOT NULL,
     category expense_category NOT NULL,
     amount DECIMAL(12,2) NOT NULL,
@@ -29,10 +28,6 @@ CREATE TABLE expenses (
     CONSTRAINT uk_expense_employee_date UNIQUE (employee_id, date),
 
     CONSTRAINT fk_expense_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT fk_expense_department FOREIGN KEY (department) REFERENCES departments(name) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_expense_manager FOREIGN KEY (manager_id) REFERENCES employees(id) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_expense_finance FOREIGN KEY (finance_id) REFERENCES employees(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
--- Create index on department column for optimized queries
-CREATE INDEX idx_expenses_department ON expenses(department);
