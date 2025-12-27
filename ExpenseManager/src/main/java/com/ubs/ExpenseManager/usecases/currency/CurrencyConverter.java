@@ -87,7 +87,7 @@ public class CurrencyConverter {
                 );
             }
 
-            log.info("Exchange rate from {} to {}: {}", from, to, rate);
+            log.info("Exchange rate from {} to {}: {} at {}", from, to, rate, java.time.LocalDateTime.now());
             return rate.setScale(8, RoundingMode.HALF_UP);
             
         } catch (Exception e) {
