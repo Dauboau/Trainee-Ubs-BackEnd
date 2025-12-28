@@ -99,7 +99,7 @@ public class CurrencyConverter {
         }
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     @CacheEvict(value = "ExchangeRatesCache", allEntries = true)
     private void clearCacheHourly() {
         log.info("ExchangeRatesCache cleared at {}", java.time.LocalDateTime.now());

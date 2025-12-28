@@ -8,6 +8,7 @@ import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
+import com.ubs.ExpenseManager.usecases.currency.CurrencyConverter;
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
@@ -24,6 +25,7 @@ public class ExpenseUseCase {
     private final ExpenseRepository expenseRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final CurrencyConverter currencyConverter;
 
     public ExpenseResponse create(ExpenseRequest request) {
         Employee employee = employeeRepository.findById(request.employeeId())
@@ -37,9 +39,13 @@ public class ExpenseUseCase {
         expense.setDepartment(department);
         expense.setDescription(request.description());
         expense.setAmount(request.amount());
+        expense.setCurrency(request.currency());
         expense.setCategory(request.category());
         expense.setDate(request.expenseDate());
         expense.setReceiptUrl(request.receiptUrl());
+
+        java.math.BigDecimal rate = currencyConverter.getExchangeRate(request.currency(), department.getCurrency());
+        expense.setExchangeRate(rate);
 
         return ExpenseResponse.fromEntity(expenseRepository.save(expense));
     }
