@@ -5,7 +5,9 @@ import com.ubs.ExpenseManager.config.UuidV7;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -33,6 +35,7 @@ public class Alert {
     private Expense expense;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false, columnDefinition = "alert_type")
     private AlertType type;
 
@@ -40,7 +43,8 @@ public class Alert {
     private String message;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "alert_status")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "alert_status", insertable = false)
     private AlertStatus status;
 
     @CreationTimestamp

@@ -7,7 +7,9 @@ import com.ubs.ExpenseManager.entities.employee.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -40,6 +42,7 @@ public class Employee {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
     private Role role;
 
@@ -50,10 +53,10 @@ public class Employee {
     @Column(nullable = false)
     private String position;
 
-    @Column(nullable = false)
+    @Column(nullable = false, insertable = false)
     private Boolean active;
 
-    @Column(name = "first_time", nullable = false)
+    @Column(name = "first_time", nullable = false, insertable = false)
     private Boolean firstTime;
 
     @CreationTimestamp
