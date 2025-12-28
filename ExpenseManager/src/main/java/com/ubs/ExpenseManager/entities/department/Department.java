@@ -4,7 +4,9 @@ import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -23,10 +25,11 @@ public class Department {
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false, columnDefinition = "currency_code")
     private CurrencyCode currency;
 
-    @Column(name = "monthly_budget", nullable = false, precision = 15, scale = 2)
+    @Column(name = "monthly_budget", nullable = false, precision = 15, scale = 2, insertable = false)
     private BigDecimal monthlyBudget;
 
     @CreationTimestamp

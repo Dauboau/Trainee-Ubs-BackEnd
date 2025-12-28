@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -46,15 +45,20 @@ public class Expense {
     private OffsetDateTime date;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "expense_category")
     private ExpenseCategory category;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false, columnDefinition = "currency_code")
     private CurrencyCode currency;
+
+    @Column(name = "exchange_rate", nullable = false, precision = 18, scale = 8)
+    private BigDecimal exchangeRate;
 
     @Column(length = 510)
     private String description;
@@ -64,6 +68,7 @@ public class Expense {
     private Employee manager;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "manager_decision", columnDefinition = "decision_type")
     private DecisionType managerDecision;
 
@@ -75,13 +80,14 @@ public class Expense {
     private Employee finance;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "finance_decision", columnDefinition = "decision_type")
     private DecisionType financeDecision;
 
     @Column(name = "finance_decision_date")
     private OffsetDateTime financeDecisionDate;
 
-    @Column(nullable = false)
+    @Column(nullable = false, insertable = false)
     private Boolean revision;
 
     @Column(name = "receipt_url", nullable = false)
