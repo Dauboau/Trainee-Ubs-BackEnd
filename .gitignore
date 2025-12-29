@@ -39,3 +39,4 @@ report.json
 .DS_Store
 **/.DS_Store
 *.key
+ExpenseManager/.env
