@@ -1,17 +1,20 @@
 package com.ubs.ExpenseManager.controllers;
 
+import com.ubs.ExpenseManager.usecases.department.DepartmentUseCase;
+import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
+import com.ubs.ExpenseManager.usecases.department.dto.UpdateDepartmentRequest;
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.ubs.ExpenseManager.usecases.department.dto.DepartmentRequest;
-import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
-import com.ubs.ExpenseManager.usecases.department.DepartmentUseCase;
 
 import java.util.List;
 
@@ -29,7 +32,7 @@ public class DepartmentController {
         @ApiResponse(responseCode = "201", description = "Departamento criado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
-    public ResponseEntity<DepartmentResponse> create(@RequestBody DepartmentRequest request) {
+    public ResponseEntity<DepartmentResponse> create(@RequestBody CreateDepartmentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(departmentUseCase.create(request));
     }
 
@@ -57,7 +60,7 @@ public class DepartmentController {
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
-    public ResponseEntity<DepartmentResponse> update(@PathVariable String name, @RequestBody DepartmentRequest request) {
+    public ResponseEntity<DepartmentResponse> update(@PathVariable String name, @RequestBody UpdateDepartmentRequest request) {
         return ResponseEntity.ok(departmentUseCase.update(name, request));
     }
 
