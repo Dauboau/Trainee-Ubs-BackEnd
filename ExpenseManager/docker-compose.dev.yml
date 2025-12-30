@@ -1,0 +1,44 @@
+networks:
+  internal_net:
+    driver: bridge
+
+volumes:
+  # expensemanager-data:
+  postgres-data:
+
+services:
+  backend:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: expensemanager-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    networks:
+      - internal_net
+    
+
+  postgres:
+    image: postgres:17.6-alpine3.22
+    restart: always
+    environment:
+      - POSTGRES_DB=ubs-expensemanager-dev
+      - POSTGRES_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - POSTGRES_USER=${SPRING_DATASOURCE_USERNAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal_net
