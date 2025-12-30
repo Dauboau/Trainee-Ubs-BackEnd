@@ -6,15 +6,16 @@ import com.ubs.ExpenseManager.exceptions.ConflictException;
 import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
 import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
 import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
+import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
 import com.ubs.ExpenseManager.usecases.department.dto.UpdateDepartmentRequest;
+
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,74 +25,52 @@ public class DepartmentUseCase {
     private final DepartmentRepository departmentRepository;
 
     public DepartmentResponse create(CreateDepartmentRequest request) {
-        validateNonExistence(request.name());
-
-        Department department = new Department();
-        department.setName(request.name());
-        department.setCurrency(request.currency());
-        department.setMonthlyBudget(BigDecimal.ZERO); // TODO: adicionar constante em utils
-
-        return DepartmentResponse.fromEntity(departmentRepository.save(department));
+        try {
+            departmentRepository.create(request.name(), request.currency().name());
+            return DepartmentResponse.fromCreate(request);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Departamento já existente");
+        }
     }
 
     @Transactional(readOnly = true)
     public List<DepartmentResponse> findAll() {
-        return departmentRepository.findAll().stream()
-            .map(DepartmentResponse::fromEntity)
-            .toList();
+        return departmentRepository.findAll().stream().map(DepartmentResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
     public DepartmentResponse findById(String name) {
-        return DepartmentResponse.fromEntity(findByIdOrThrow(name));
+        return DepartmentResponse.fromEntity(departmentRepository.findById(name)
+            .orElseThrow(() -> new ResourceNotFoundException("Departamento não encontrado")));
     }
 
-    @Transactional
     public DepartmentResponse update(String name, UpdateDepartmentRequest request) {
-        validateExistence(name);
-
-        String newName = request.name();
-        boolean willRename = !name.equals(newName);
-
-        if (willRename) {
-            if (departmentRepository.existsById(newName)) {
-                throw new ConflictException("Já existe um departamento com esse nome");
-            }
-
-            int updated = departmentRepository.renameDepartment(name, newName);
-            // TODO: adicionar constante em utils
-            if (updated == 0) {
-                throw new ResourceNotFoundException("Departamento não encontrado");
-            }
-        }
-
-        Department department = findByIdOrThrow(newName);
-
+        Department department = departmentRepository.findById(name)
+            .orElseThrow(() -> new ResourceNotFoundException("Departamento não encontrado"));
         department.setCurrency(request.currency());
         department.setMonthlyBudget(request.monthlyBudget());
 
         return DepartmentResponse.fromEntity(departmentRepository.save(department));
     }
 
-    public void delete(String name) {
-        validateExistence(name);
-        departmentRepository.deleteById(name);
-    }
-
-    private void validateNonExistence(String name) {
-        if (departmentRepository.existsById(name)) {
+    public void rename(String name, RenameDepartmentRequest request) {
+        if (name.equals(request.newName())) {
+            return;
+        }
+        try {
+            int updated = departmentRepository.rename(name, request.newName());
+            if (updated == 0) {
+                throw new ResourceNotFoundException("Departamento não encontrado");
+            }
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
             throw new ConflictException("Já existe um departamento com esse nome");
         }
     }
 
-    private void validateExistence(String name) {
-        if (!departmentRepository.existsById(name)) {
+    public void delete(String name) {
+        int deleted = departmentRepository.deleteByName(name);
+        if (deleted == 0) {
             throw new ResourceNotFoundException("Departamento não encontrado");
         }
-    }
-
-    private Department findByIdOrThrow(String name) {
-        return departmentRepository.findById(name)
-                .orElseThrow(() -> new ResourceNotFoundException("Departamento não encontrado"));
     }
 }

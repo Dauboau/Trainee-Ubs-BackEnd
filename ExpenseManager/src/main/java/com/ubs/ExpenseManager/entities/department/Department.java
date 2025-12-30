@@ -2,17 +2,27 @@ package com.ubs.ExpenseManager.entities.department;
 
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
-import lombok.*;
+import java.math.BigDecimal;
+import java.time.Instant;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 @Entity
 @Table(name = "departments")
@@ -33,7 +43,7 @@ public class Department {
     private CurrencyCode currency;
 
     @Column(name = "monthly_budget", nullable = false, precision = 15, scale = 2, insertable = false)
-    private BigDecimal monthlyBudget;
+    private BigDecimal monthlyBudget = BigDecimal.ZERO;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

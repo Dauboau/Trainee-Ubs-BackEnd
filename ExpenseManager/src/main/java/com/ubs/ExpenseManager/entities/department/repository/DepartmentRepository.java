@@ -13,7 +13,18 @@ import java.util.Optional;
 public interface DepartmentRepository extends JpaRepository<Department, String> {
     Optional<Department> findByName(String name);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE departments SET name = :newName WHERE name = :oldName", nativeQuery = true)
-    int renameDepartment(String oldName, String newName);
+    int rename(String oldName, String newName);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "DELETE FROM departments WHERE name = :name", nativeQuery = true)
+    int deleteByName(String name);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = """
+        INSERT INTO departments (name, currency) 
+        VALUES (:name, (:currency)::currency_code)
+        """, nativeQuery = true)
+    int create(String name, String currency);
 }
