@@ -1,17 +1,23 @@
 package com.ubs.ExpenseManager.controllers;
 
+import com.ubs.ExpenseManager.usecases.department.DepartmentUseCase;
+import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
+import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.UpdateDepartmentRequest;
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.ubs.ExpenseManager.usecases.department.dto.DepartmentRequest;
-import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
-import com.ubs.ExpenseManager.usecases.department.DepartmentUseCase;
 
 import java.util.List;
 
@@ -29,7 +35,7 @@ public class DepartmentController {
         @ApiResponse(responseCode = "201", description = "Departamento criado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
-    public ResponseEntity<DepartmentResponse> create(@RequestBody DepartmentRequest request) {
+    public ResponseEntity<DepartmentResponse> create(@Valid @RequestBody CreateDepartmentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(departmentUseCase.create(request));
     }
 
@@ -51,14 +57,46 @@ public class DepartmentController {
     }
 
     @PutMapping("/{name}")
-    @Operation(summary = "Atualizar departamento", description = "Atualiza os dados de um departamento existente")
+    @Operation(
+            summary = "Atualizar departamento",
+            description = """
+                    Atualiza os dados de um departamento existente
+                    
+                    <b>Observação:</b><br>
+                    O campo <code>name</code> <b>NÃO</b> é alterado por este endpoint.<br>
+                    Para renomear um departamento, utilize o endpoint
+                    <b><code>PATCH /api/departments/{name}/name</code></b>.
+                    """
+    )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Departamento atualizado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos")
     })
-    public ResponseEntity<DepartmentResponse> update(@PathVariable String name, @RequestBody DepartmentRequest request) {
+    public ResponseEntity<DepartmentResponse> update(@PathVariable String name,
+        @Valid @RequestBody UpdateDepartmentRequest request) {
         return ResponseEntity.ok(departmentUseCase.update(name, request));
+    }
+
+    @PatchMapping("{name}/name")
+    @Operation(
+            summary = "Atualizar nome de departamento",
+            description = """
+                    Atualiza apenas o nome de um departamento
+                    
+                    <b>Observação:</b><br>
+                    Para alterar os demais dados de um departamento, utilize o endpoint
+                    <b><code>PUT /api/departments/{name}</code></b>.
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Nome do departamento atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Departamento não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
+    public ResponseEntity<Void> rename(@PathVariable String name, @Valid @RequestBody RenameDepartmentRequest request) {
+        departmentUseCase.rename(name, request);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{name}")

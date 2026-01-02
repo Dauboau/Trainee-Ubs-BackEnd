@@ -1,16 +1,18 @@
 package com.ubs.ExpenseManager.usecases.alert;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.ubs.ExpenseManager.usecases.alert.dto.AlertResponse;
 import com.ubs.ExpenseManager.entities.alert.Alert;
 import com.ubs.ExpenseManager.entities.alert.enums.AlertStatus;
 import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
 import com.ubs.ExpenseManager.entities.alert.repository.AlertRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
+import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
+import com.ubs.ExpenseManager.usecases.alert.dto.AlertResponse;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +27,7 @@ public class AlertUseCase {
 
     public AlertResponse create(UUID expenseId, AlertType type, String message) {
         Expense expense = expenseRepository.findById(expenseId)
-            .orElseThrow(() -> new IllegalArgumentException("Despesa não encontrada"));
+            .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada"));
 
         Alert alert = new Alert();
         alert.setExpense(expense);
@@ -58,7 +60,7 @@ public class AlertUseCase {
 
     public AlertResponse resolve(UUID id) {
         Alert alert = alertRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Alerta não encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Alerta não encontrado"));
 
         alert.setStatus(AlertStatus.RESOLVED);
         return AlertResponse.fromEntity(alertRepository.save(alert));
