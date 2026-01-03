@@ -1,12 +1,14 @@
-package com.ubs.ExpenseManager.exceptionhandler;
+package com.ubs.ExpenseManager.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
-import com.ubs.ExpenseManager.exceptions.ApiException;
+
+import javax.naming.AuthenticationException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +27,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(WebRequest request) {
         String message = "Formato da requisição inválido";
         return build(HttpStatus.BAD_REQUEST, message, request);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentialsException(WebRequest request) {
+        String message = "Credenciais inválidas";
+        return build(HttpStatus.UNAUTHORIZED, message, request);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthenticationException(WebRequest request) {
+        String message = "Credenciais inválidas";
+        return build(HttpStatus.UNAUTHORIZED, message, request);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

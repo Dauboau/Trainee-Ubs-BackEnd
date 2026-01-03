@@ -6,7 +6,7 @@ import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
 import com.ubs.ExpenseManager.entities.alert.repository.AlertRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
-import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
+import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.usecases.alert.dto.AlertResponse;
 
 import lombok.RequiredArgsConstructor;

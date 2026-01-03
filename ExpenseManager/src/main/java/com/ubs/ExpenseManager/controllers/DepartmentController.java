@@ -33,7 +33,9 @@ public class DepartmentController {
     @Operation(summary = "Criar departamento", description = "Cria um novo departamento no sistema")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Departamento criado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Dados inválidos")
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "403", description = "Sem permissão"),
+        @ApiResponse(responseCode = "409", description = "Departamento já existe")
     })
     public ResponseEntity<DepartmentResponse> create(@Valid @RequestBody CreateDepartmentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(departmentUseCase.create(request));
@@ -41,7 +43,11 @@ public class DepartmentController {
 
     @GetMapping
     @Operation(summary = "Listar departamentos", description = "Retorna todos os departamentos cadastrados")
-    @ApiResponse(responseCode = "200", description = "Lista de departamentos retornada com sucesso")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista de departamentos retornada com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado"),
+        @ApiResponse(responseCode = "403", description = "Sem permissão")
+    })
     public ResponseEntity<List<DepartmentResponse>> findAll() {
         return ResponseEntity.ok(departmentUseCase.findAll());
     }
@@ -50,6 +56,8 @@ public class DepartmentController {
     @Operation(summary = "Buscar departamento por nome", description = "Retorna um departamento específico pelo nome")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Departamento encontrado"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado"),
+        @ApiResponse(responseCode = "403", description = "Sem permissão"),
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado")
     })
     public ResponseEntity<DepartmentResponse> findById(@PathVariable String name) {
@@ -70,8 +78,11 @@ public class DepartmentController {
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Departamento atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado"),
+        @ApiResponse(responseCode = "403", description = "Sem permissão"),
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado"),
-        @ApiResponse(responseCode = "400", description = "Dados inválidos")
+        @ApiResponse(responseCode = "409", description = "Departamento já existe")
     })
     public ResponseEntity<DepartmentResponse> update(@PathVariable String name,
         @Valid @RequestBody UpdateDepartmentRequest request) {
@@ -90,9 +101,12 @@ public class DepartmentController {
                     """
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Nome do departamento atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Departamento não encontrado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+        @ApiResponse(responseCode = "204", description = "Nome do departamento atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado"),
+        @ApiResponse(responseCode = "403", description = "Sem permissão"),
+        @ApiResponse(responseCode = "404", description = "Departamento não encontrado"),
+        @ApiResponse(responseCode = "409", description = "Departamento já existe")
     })
     public ResponseEntity<Void> rename(@PathVariable String name, @Valid @RequestBody RenameDepartmentRequest request) {
         departmentUseCase.rename(name, request);
@@ -103,6 +117,8 @@ public class DepartmentController {
     @Operation(summary = "Deletar departamento", description = "Remove um departamento do sistema")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Departamento deletado com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado"),
+        @ApiResponse(responseCode = "403", description = "Sem permissão"),
         @ApiResponse(responseCode = "404", description = "Departamento não encontrado")
     })
     public ResponseEntity<Void> delete(@PathVariable String name) {

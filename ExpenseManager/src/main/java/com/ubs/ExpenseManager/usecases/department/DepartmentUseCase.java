@@ -2,8 +2,8 @@ package com.ubs.ExpenseManager.usecases.department;
 
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
-import com.ubs.ExpenseManager.exceptions.ConflictException;
-import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
+import com.ubs.ExpenseManager.exception.ConflictException;
+import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
 import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
