@@ -5,8 +5,6 @@ import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 
 import lombok.AllArgsConstructor;
 
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,14 +13,12 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Employee employee = employeeRepository.findByEmail(email)
+    public Employee loadUserByUsername(String email) throws UsernameNotFoundException {
+        return employeeRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException(
                 "Usuário com email " + email + " não encontrado"));
-
-        return new User(employee.getUsername(), employee.getPassword(), employee.getAuthorities());
     }
 }

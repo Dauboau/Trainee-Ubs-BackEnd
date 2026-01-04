@@ -2,6 +2,7 @@ package com.ubs.ExpenseManager.usecases.auth;
 
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
+import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.security.jwt.JwtService;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationRequest;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationResponse;
@@ -33,8 +34,12 @@ public class AuthUseCase {
                 request.password())
         );
         Employee employee = employeeRepository.findByEmail(request.email())
-            .orElseThrow(() -> new UsernameNotFoundException(
-                "Usuário com email " + request.email() + " não encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        if (!employee.getActive()) {
+            throw new ResourceNotFoundException("Usuário não encontrado");
+        }
+
         return buildAuthenticationResponse(employee);
     }
 }

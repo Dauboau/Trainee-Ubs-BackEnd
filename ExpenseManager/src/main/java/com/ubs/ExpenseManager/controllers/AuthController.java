@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/login")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Endpoints de autenticação")
 public class AuthController {
 
     private final AuthUseCase authUseCase;
 
-    @PostMapping("/login")
+    @PostMapping()
     @Operation(
         summary = "Realizar login",
         description = "Autentica o usuário e retorna um token JWT"
@@ -39,7 +39,6 @@ public class AuthController {
     })
     public ResponseEntity<AuthenticationResponse> login(
         @Valid @RequestBody AuthenticationRequest request) {
-        AuthenticationResponse response = authUseCase.login(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authUseCase.login(request));
     }
 }
