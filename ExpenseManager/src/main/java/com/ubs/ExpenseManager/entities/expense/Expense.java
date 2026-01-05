@@ -11,6 +11,7 @@ import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 import com.ubs.ExpenseManager.entities.department.Department;
@@ -95,7 +96,7 @@ public class Expense {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "receipt_metadata", columnDefinition = "jsonb")
-    private String receiptMetadata;
+    private Map<String, Object> receiptMetadata;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
