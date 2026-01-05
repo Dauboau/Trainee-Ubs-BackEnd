@@ -8,6 +8,11 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record UpdateDepartmentRequest(
-    @NotNull CurrencyCode currency,
-    @NotNull @Positive BigDecimal monthlyBudget
+
+    @NotNull(message = "Currency is required")
+    CurrencyCode currency,
+
+    @NotNull(message = "Monthly budget is required")
+    @Positive(message = "Monthly budget must be a positive value")
+    BigDecimal monthlyBudget
 ) {}
