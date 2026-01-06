@@ -24,6 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
 //import static org.junit.jupiter.api.Assertions.*;
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -46,8 +47,10 @@ class DepartmentUseCaseTest {
         System.out.println("Case 1");
         CreateDepartmentRequest request = new CreateDepartmentRequest("Test-Dpt", CurrencyCode.BRL);
 
+        // Mock the create method to return 1 (indicating one row affected)
+        when(departmentRepository.create(anyString(), anyString())).thenReturn(1);
+
         departmentRepository.create(request.name(), request.currency().name());
-        System.out.println(DepartmentResponse.fromCreate(request));
 
 //        System.out.println(DepartmentResponse.fromCreate(request).currency().getClass().getSimpleName());
 //        System.out.println(DepartmentResponse.fromCreate(request).currency());
