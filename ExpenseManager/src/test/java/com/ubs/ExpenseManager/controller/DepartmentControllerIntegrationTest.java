@@ -15,6 +15,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
+@ActiveProfiles("test") // Add this line
 public class DepartmentControllerIntegrationTest {
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
@@ -40,7 +43,7 @@ public class DepartmentControllerIntegrationTest {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+        registry.add("server.port", () -> "0");
     }
 
     @BeforeEach
@@ -52,15 +55,15 @@ public class DepartmentControllerIntegrationTest {
 
     @Test
     void shouldReturnDepartmentById() throws Exception {
-        mockMvc.perform(get("/departments/RH"))
+        mockMvc.perform(get("/api/departments/RH"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("RH"))
-                .andExpect(jsonPath("$.currency").value(CurrencyCode.BRL));
+                .andExpect(jsonPath("$.currency").value("BRL"));
     }
 
     @Test
     void shouldReturnNotFoundForInvalidId() throws Exception {
-        mockMvc.perform(get("/departments/RH"))
-                .andExpect(status().is4xxClientError());
+        mockMvc.perform(get("/api/departments/NonExistent"))
+                .andExpect(status().isNotFound());
     }
 }

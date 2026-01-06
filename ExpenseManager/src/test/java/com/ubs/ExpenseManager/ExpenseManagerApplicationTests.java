@@ -8,8 +8,11 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import org.springframework.test.context.ActiveProfiles;
+
 @SpringBootTest
 @Testcontainers // Add this annotation
+@ActiveProfiles("test") // Add this line
 class ExpenseManagerApplicationTests {
 
     @Container // Add this annotation
@@ -23,13 +26,7 @@ class ExpenseManagerApplicationTests {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        // Ensure Flyway is enabled and potentially cleans the database for tests
-        registry.add("spring.flyway.enabled", () -> "true");
-        registry.add("spring.flyway.clean-disabled", () -> "false");
-        registry.add("spring.flyway.clean-before-validate", () -> "true"); // Add this line
-        registry.add("spring.flyway.baseline-on-migrate", () -> "true"); // Add this line
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
-        registry.add("spring.flyway.locations", () -> "classpath:db/migration");
+        registry.add("server.port", () -> "0");
 
     }
 
