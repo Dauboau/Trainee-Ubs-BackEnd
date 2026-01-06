@@ -6,12 +6,12 @@ import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.security.jwt.JwtService;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationRequest;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationResponse;
+import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeResponse;
 
 import lombok.AllArgsConstructor;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,7 +24,7 @@ public class AuthUseCase {
 
     private AuthenticationResponse buildAuthenticationResponse(Employee employee) {
         String jwtToken = jwtService.generateToken(employee);
-        return new AuthenticationResponse(jwtToken);
+        return new AuthenticationResponse(jwtToken, EmployeeResponse.fromEntity(employee));
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {

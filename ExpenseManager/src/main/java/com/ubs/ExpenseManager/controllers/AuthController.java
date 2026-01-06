@@ -29,13 +29,13 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(
-        summary = "Realizar login",
-        description = "Autentica o usuário e retorna um token JWT"
+        summary = "Authenticate user",
+        description = "Authenticates the user and returns a JWT token along with the authenticated user data"
     )
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Login realizado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-        @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+        @ApiResponse(responseCode = "200", description = "Authentication successful"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
     })
     public ResponseEntity<AuthenticationResponse> login(
         @Valid @RequestBody AuthenticationRequest request) {
