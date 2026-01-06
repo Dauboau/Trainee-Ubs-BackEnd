@@ -1,13 +1,23 @@
 package com.ubs.ExpenseManager.controller;
 
-import net.bytebuddy.utility.dispatcher.JavaDispatcher;
+import com.ubs.ExpenseManager.entities.department.Department;
+import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
+import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -21,4 +31,36 @@ public class DepartmentControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private DepartmentRepository repository;
+
+    @DynamicPropertySource
+    static void overrideProps(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+    }
+
+    @BeforeEach
+    void setup() {
+        repository.deleteAll();
+        repository.save(new Department("RH", CurrencyCode.BRL));
+        repository.save(new Department("HR", CurrencyCode.USD));
+    }
+
+    @Test
+    void shouldReturnDepartmentById() throws Exception {
+        mockMvc.perform(get("/departments/RH"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("RH"))
+                .andExpect(jsonPath("$.currency").value(CurrencyCode.BRL));
+    }
+
+    @Test
+    void shouldReturnNotFoundForInvalidId() throws Exception {
+        mockMvc.perform(get("/departments/RH"))
+                .andExpect(status().is4xxClientError());
+    }
 }
