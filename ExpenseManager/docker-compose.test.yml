@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  test-db:
+    image: postgres:15
+    container_name: expensemanager-test-db
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: testdb
+    ports:
+      - "5433:5432" # Use a different port to avoid conflicts with a potential local dev db
