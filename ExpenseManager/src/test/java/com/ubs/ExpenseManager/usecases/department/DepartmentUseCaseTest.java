@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 //import static org.junit.jupiter.api.Assertions.*;
 //@DataJpaTest
@@ -48,8 +49,10 @@ class DepartmentUseCaseTest {
         departmentRepository.create(request.name(), request.currency().name());
         System.out.println(DepartmentResponse.fromCreate(request));
 
-//        asserThat(DepartmentResponse.fromCreate(request).name(), "Test-Dpt");
-
+//        System.out.println(DepartmentResponse.fromCreate(request).currency().getClass().getSimpleName());
+//        System.out.println(DepartmentResponse.fromCreate(request).currency());
+        assertEquals("Test-Dpt", DepartmentResponse.fromCreate(request).name(), "Created department name does not match");
+        assertEquals(CurrencyCode.BRL, DepartmentResponse.fromCreate(request).currency(), "Created departments currency does not match");
     }
 
     @Test
