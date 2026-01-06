@@ -2,18 +2,25 @@ package com.ubs.ExpenseManager.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
 import com.ubs.ExpenseManager.usecases.expense.ExpenseUseCase;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,14 +32,14 @@ public class ExpenseController {
 
     private final ExpenseUseCase expenseUseCase;
 
-    @PostMapping
-    @Operation(summary = "Create expense", description = "Creates a new expense in the system")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Create expense", description = "Creates a new expense in the system with receipt image")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Expense created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid data"),
         @ApiResponse(responseCode = "404", description = "Employee or department not found")
     })
-    public ResponseEntity<ExpenseResponse> create(@RequestBody ExpenseRequest request) {
+    public ResponseEntity<ExpenseResponse> create(@Valid @ModelAttribute ExpenseRequest request) {        
         return ResponseEntity.status(HttpStatus.CREATED).body(expenseUseCase.create(request));
     }
 
