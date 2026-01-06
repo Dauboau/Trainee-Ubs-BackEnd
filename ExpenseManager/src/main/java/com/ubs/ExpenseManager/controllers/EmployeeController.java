@@ -29,16 +29,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
-@Tag(name = "Employees", description = "Endpoints para gerenciamento de funcionários")
+@Tag(name = "Employees", description = "Employee management endpoints")
 public class EmployeeController {
 
     private final EmployeeUseCase employeeUseCase;
 
     @PostMapping
-    @Operation(summary = "Criar funcionário", description = "Cria um novo funcionário no sistema")
+    @Operation(summary = "Create employee", description = "Creates a new employee in the system")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Dados inválidos")
+        @ApiResponse(responseCode = "201", description = "Employee created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "409", description = "Email already in use")
     })
     public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody EmployeeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeUseCase.create(request));
@@ -46,57 +47,62 @@ public class EmployeeController {
 
     @GetMapping
     @Operation(
-        summary = "Listar funcionários",
-        description = "Retorna todos os funcionários cadastrados"
+        summary = "List employees",
+        description = "Returns a list of all active registered employees"
     )
-    @ApiResponse(responseCode = "200", description = "Lista de funcionários retornada com sucesso")
+    @ApiResponse(responseCode = "200", description = "Employee list retrieved successfully")
     public ResponseEntity<List<EmployeeResponse>> findAll() {
         return ResponseEntity.ok(employeeUseCase.findAll());
     }
 
     @GetMapping("/managers")
     @Operation(
-        summary = "Listar gerentes",
-        description = "Retorna todos os gerentes cadastrados"
+        summary = "List managers",
+        description = "Returns a list of all active registered managers"
     )
-    @ApiResponse(responseCode = "200", description = "Lista de gerentes retornada com sucesso")
+    @ApiResponse(responseCode = "200", description = "Manager list retrieved successfully")
     public ResponseEntity<List<EmployeeResponse>> findAllManagers() {
         return ResponseEntity.ok(employeeUseCase.findAllManagers());
     }
 
     @GetMapping("/{id}")
-    @Operation(
-        summary = "Buscar funcionário por ID",
-        description = "Retorna um funcionário específico pelo ID"
-    )
+    @Operation(summary = "Get employee by ID", description = "Returns a specific employee by ID")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Funcionário encontrado"),
-        @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
+        @ApiResponse(responseCode = "200", description = "Employee found"),
+        @ApiResponse(responseCode = "404", description = "Employee not found")
     })
     public ResponseEntity<EmployeeResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(employeeUseCase.findById(id));
     }
 
-    @PostMapping("/realocate")
+    @PostMapping("/reallocate")
     @Operation(
-        summary = "Realocar subordinados para outro gerente",
-        description = "Transfere todos os funcionários de um gerente atual para um novo gerente"
+        summary = "Reallocate subordinates to another manager",
+        description = "Transfers all employees from the current manager to a new manager"
     )
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Subordinados realocados com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Gerente não encontrado"),
-        @ApiResponse(responseCode = "422", description = "Regra de negócio violada")
+        @ApiResponse(responseCode = "204", description = "Subordinates reallocated successfully"),
+        @ApiResponse(responseCode = "404", description = "Manager not found"),
+        @ApiResponse(
+            responseCode = "422",
+            description = "Business rule violation during manager reallocation"
+        )
     })
-    public ResponseEntity<Void> reallocateManager(@Valid @RequestBody ManagerReallocationRequest request) {
+    public ResponseEntity<Void> reallocateManager(
+        @Valid @RequestBody ManagerReallocationRequest request) {
         employeeUseCase.reallocateManager(request);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar funcionário", description = "Remove um funcionário do sistema")
+    @Operation(summary = "Delete employee", description = "Removes an employee from the system")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Funcionário deletado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
+        @ApiResponse(responseCode = "204", description = "Employee deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Employee not found"),
+        @ApiResponse(
+            responseCode = "422",
+            description = "Employee cannot be deleted because they manage other employees"
+        )
     })
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         employeeUseCase.delete(id);

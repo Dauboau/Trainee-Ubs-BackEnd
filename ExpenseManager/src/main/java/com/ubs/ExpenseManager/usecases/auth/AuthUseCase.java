@@ -34,10 +34,10 @@ public class AuthUseCase {
                 request.password())
         );
         Employee employee = employeeRepository.findByEmail(request.email())
-            .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!employee.getActive()) {
-            throw new ResourceNotFoundException("Usuário não encontrado");
+            throw new ResourceNotFoundException("User not found");
         }
 
         return buildAuthenticationResponse(employee);

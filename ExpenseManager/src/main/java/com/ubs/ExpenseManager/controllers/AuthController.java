@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Endpoints de autenticação")
+@Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthController {
 
     private final AuthUseCase authUseCase;
@@ -30,7 +30,8 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(
         summary = "Authenticate user",
-        description = "Authenticates the user and returns a JWT token along with the authenticated user data"
+        description = "Authenticates the user and returns a JWT token along with the "
+            + "authenticated user data"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Authentication successful"),
