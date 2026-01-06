@@ -1,4 +1,4 @@
-package com.ubs.ExpenseManager.exceptionhandler;
+package com.ubs.ExpenseManager.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
