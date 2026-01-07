@@ -1,15 +1,16 @@
-package com.ubs.ExpenseManager.usecases.currency.dto;
-
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import lombok.Data;
+package com.ubs.ExpenseManager.gateways.dto;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
+import lombok.Data;
+
 @Data
-public class CurrencyRateResponse {
-    
+public class CurrencyApiAdapterResponse {
+
     private String date;
     
     private Map<String, BigDecimal> rates = new HashMap<>();
