@@ -1,8 +1,6 @@
 package com.ubs.ExpenseManager.usecases.currency.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.Data;
 
 import java.math.BigDecimal;

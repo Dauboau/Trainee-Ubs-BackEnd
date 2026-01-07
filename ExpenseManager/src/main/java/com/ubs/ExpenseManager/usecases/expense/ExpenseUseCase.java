@@ -1,6 +1,7 @@
 package com.ubs.ExpenseManager.usecases.expense;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
@@ -20,6 +21,7 @@ import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
+import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,6 +38,7 @@ public class ExpenseUseCase {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final CurrencyConverter currencyConverter;
+    private final ImageStorageGateway storageGateway;
 
     public ExpenseResponse create(ExpenseRequest request) {
         Employee employee = employeeRepository.findById(request.employeeId())
@@ -43,8 +46,6 @@ public class ExpenseUseCase {
 
         Department department = departmentRepository.findById(request.departmentName())
             .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
-
-        String receiptUrl = "https://storage.googleapis.com/ubs-expensemanager.firebasestorage.app/receipts/" + UuidCreator.getRandomBased().toString();
 
         Expense expense = new Expense();
         expense.setEmployee(employee);
@@ -54,7 +55,6 @@ public class ExpenseUseCase {
         expense.setCurrency(request.currency());
         expense.setCategory(request.category());
         expense.setDate(request.expenseDate());
-        expense.setReceiptUrl(receiptUrl);
 
         java.math.BigDecimal rate = currencyConverter.getExchangeRate(request.currency(), department.getCurrency());
         expense.setExchangeRate(rate);
@@ -67,7 +67,14 @@ public class ExpenseUseCase {
             // Ignore metadata extraction errors
         }
 
-        return ExpenseResponse.fromEntity(expenseRepository.save(expense));
+        String fileName = String.format("receipts/%s", UuidCreator.getRandomBased());
+        String receiptUrl = storageGateway.uploadImage(request.receiptImage(), fileName);
+        expense.setReceiptUrl(receiptUrl);
+
+        Expense savedExpense = expenseRepository.save(expense);
+        expenseRepository.flush();
+
+        return ExpenseResponse.fromEntity(savedExpense);
     }
 
     @Transactional(readOnly = true)

@@ -18,9 +18,12 @@ public record ExpenseResponse(
     ExpenseCategory category,
     BigDecimal amount,
     CurrencyCode currency,
+    BigDecimal exchangeRate,
     String description,
     String receiptUrl,
+    Boolean revision,
     Instant createdAt,
+    Instant updatedAt,
     ExpenseStatus status
 ) {
     public static ExpenseResponse fromEntity(Expense expense) {
@@ -32,9 +35,12 @@ public record ExpenseResponse(
             expense.getCategory(),
             expense.getAmount(),
             expense.getCurrency(),
+            expense.getExchangeRate(),
             expense.getDescription(),
             expense.getReceiptUrl(),
+            expense.getRevision(),
             expense.getCreatedAt(),
+            expense.getUpdatedAt(),
             expense.getStatus()
         );
     }

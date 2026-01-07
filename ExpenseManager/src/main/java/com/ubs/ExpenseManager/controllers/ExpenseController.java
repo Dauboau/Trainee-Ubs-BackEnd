@@ -10,17 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
-import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
 import com.ubs.ExpenseManager.usecases.expense.ExpenseUseCase;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
