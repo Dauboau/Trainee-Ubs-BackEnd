@@ -53,11 +53,11 @@ public class Employee {
     @Column(nullable = false)
     private String position;
 
-    @Column(nullable = false, insertable = false)
-    private Boolean active;
+    @Column(nullable = false)
+    private Boolean active = true;
 
-    @Column(name = "first_time", nullable = false, insertable = false)
-    private Boolean firstTime;
+    @Column(name = "first_time", nullable = false)
+    private Boolean firstTime = true;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
