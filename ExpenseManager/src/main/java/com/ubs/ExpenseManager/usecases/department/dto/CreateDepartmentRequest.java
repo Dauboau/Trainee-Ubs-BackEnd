@@ -6,8 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateDepartmentRequest(
-    @NotBlank
+
+    @NotBlank(message = "Name is required")
     String name,
-    @NotNull
+
+    @NotNull(message = "Currency is required")
     CurrencyCode currency
 ) {}

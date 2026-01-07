@@ -2,8 +2,8 @@ package com.ubs.ExpenseManager.usecases.department;
 
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
-import com.ubs.ExpenseManager.exceptions.ConflictException;
-import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
+import com.ubs.ExpenseManager.exception.ConflictException;
+import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
 import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
@@ -29,7 +29,7 @@ public class DepartmentUseCase {
             departmentRepository.create(request.name(), request.currency().name());
             return DepartmentResponse.fromCreate(request);
         } catch (DataIntegrityViolationException ex) {
-            throw new ConflictException("Departamento já existente");
+            throw new ConflictException("Department already exists");
         }
     }
 
@@ -41,12 +41,12 @@ public class DepartmentUseCase {
     @Transactional(readOnly = true)
     public DepartmentResponse findById(String name) {
         return DepartmentResponse.fromEntity(departmentRepository.findById(name)
-            .orElseThrow(() -> new ResourceNotFoundException("Departamento não encontrado")));
+            .orElseThrow(() -> new ResourceNotFoundException("Department not found")));
     }
 
     public DepartmentResponse update(String name, UpdateDepartmentRequest request) {
         Department department = departmentRepository.findById(name)
-            .orElseThrow(() -> new ResourceNotFoundException("Departamento não encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
         department.setCurrency(request.currency());
         department.setMonthlyBudget(request.monthlyBudget());
 
@@ -60,17 +60,17 @@ public class DepartmentUseCase {
         try {
             int updated = departmentRepository.rename(name, request.newName());
             if (updated == 0) {
-                throw new ResourceNotFoundException("Departamento não encontrado");
+                throw new ResourceNotFoundException("Department not found");
             }
         } catch (org.springframework.dao.DataIntegrityViolationException ex) {
-            throw new ConflictException("Já existe um departamento com esse nome");
+            throw new ConflictException("A department with this name already exists");
         }
     }
 
     public void delete(String name) {
         int deleted = departmentRepository.deleteByName(name);
         if (deleted == 0) {
-            throw new ResourceNotFoundException("Departamento não encontrado");
+            throw new ResourceNotFoundException("Department not found");
         }
     }
 }
