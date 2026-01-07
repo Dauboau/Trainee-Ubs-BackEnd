@@ -2,6 +2,7 @@ package com.ubs.ExpenseManager.usecases.expense;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
@@ -15,11 +16,12 @@ import com.drew.metadata.Tag;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
-import com.ubs.ExpenseManager.usecases.currency.CurrencyConverter;
+import com.ubs.ExpenseManager.gateways.CurrencyExchangeGateway;
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
+import com.ubs.ExpenseManager.exceptions.ConflictException;
 import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
 import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
 
@@ -37,7 +39,7 @@ public class ExpenseUseCase {
     private final ExpenseRepository expenseRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
-    private final CurrencyConverter currencyConverter;
+    private final CurrencyExchangeGateway currencyExchangeGateway;
     private final ImageStorageGateway storageGateway;
 
     public ExpenseResponse create(ExpenseRequest request) {
@@ -56,7 +58,7 @@ public class ExpenseUseCase {
         expense.setCategory(request.category());
         expense.setDate(request.expenseDate());
 
-        java.math.BigDecimal rate = currencyConverter.getExchangeRate(request.currency(), department.getCurrency());
+        java.math.BigDecimal rate = currencyExchangeGateway.getExchangeRate(request.currency(), department.getCurrency());
         expense.setExchangeRate(rate);
 
         try {
@@ -71,10 +73,13 @@ public class ExpenseUseCase {
         String receiptUrl = storageGateway.uploadImage(request.receiptImage(), fileName);
         expense.setReceiptUrl(receiptUrl);
 
-        Expense savedExpense = expenseRepository.save(expense);
-        expenseRepository.flush();
-
-        return ExpenseResponse.fromEntity(savedExpense);
+        try {
+            Expense savedExpense = expenseRepository.save(expense);
+            expenseRepository.flush();
+            return ExpenseResponse.fromEntity(savedExpense);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Expense already exists");
+        }
     }
 
     @Transactional(readOnly = true)
