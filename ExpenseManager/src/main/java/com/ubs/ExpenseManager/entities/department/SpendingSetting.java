@@ -51,4 +51,5 @@ public class SpendingSetting {
     public SpendingType getType() {
         return id != null ? id.getType() : null;
     }
+    //NOTE: Consider adding column to track author of change.
 }

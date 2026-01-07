@@ -26,6 +26,7 @@ public class ExpenseUseCase {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final CurrencyConverter currencyConverter;
+    private final ExpenseProcessor expenseProcessor;
 
     public ExpenseResponse create(ExpenseRequest request) {
         Employee employee = employeeRepository.findById(request.employeeId())
@@ -47,7 +48,10 @@ public class ExpenseUseCase {
         java.math.BigDecimal rate = currencyConverter.getExchangeRate(request.currency(), department.getCurrency());
         expense.setExchangeRate(rate);
 
-        return ExpenseResponse.fromEntity(expenseRepository.save(expense));
+
+        Expense saved = expenseRepository.save(expense);
+        expenseProcessor.process(saved);
+        return ExpenseResponse.fromEntity(saved);
     }
 
     @Transactional(readOnly = true)
