@@ -13,7 +13,6 @@ import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
 public record ExpenseResponse(
     UUID id,
     UUID employeeId,
-    String employeeName,
     String departmentName,
     OffsetDateTime date,
     ExpenseCategory category,
@@ -28,7 +27,6 @@ public record ExpenseResponse(
         return new ExpenseResponse(
             expense.getId(),
             expense.getEmployee() != null ? expense.getEmployee().getId() : null,
-            expense.getEmployee() != null ? expense.getEmployee().getName() : null,
             expense.getDepartment() != null ? expense.getDepartment().getName() : null,
             expense.getDate(),
             expense.getCategory(),

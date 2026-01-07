@@ -96,7 +96,7 @@ public class Expense {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "receipt_metadata", columnDefinition = "jsonb")
-    private Map<String, Object> receiptMetadata;
+    private Map<String, Map<String, String>> receiptMetadata;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

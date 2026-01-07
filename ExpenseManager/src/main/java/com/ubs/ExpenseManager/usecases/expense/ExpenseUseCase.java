@@ -3,11 +3,15 @@ package com.ubs.ExpenseManager.usecases.expense;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
 import com.ubs.ExpenseManager.usecases.currency.CurrencyConverter;
@@ -17,6 +21,7 @@ import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +44,7 @@ public class ExpenseUseCase {
         Department department = departmentRepository.findById(request.departmentName())
             .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
-        // Processar imagem e extrair metadados
-        Map<String, Object> receiptMetadata = extractReceiptMetadata(request.receiptImage());
-        String receiptUrl = "https://storage.example.com/receipts/" + UUID.randomUUID().toString(); // Hardcoded temporariamente
+        String receiptUrl = "https://storage.googleapis.com/ubs-expensemanager.firebasestorage.app/receipts/" + UuidCreator.getRandomBased().toString();
 
         Expense expense = new Expense();
         expense.setEmployee(employee);
@@ -52,32 +55,19 @@ public class ExpenseUseCase {
         expense.setCategory(request.category());
         expense.setDate(request.expenseDate());
         expense.setReceiptUrl(receiptUrl);
-        expense.setReceiptMetadata(receiptMetadata);
 
         java.math.BigDecimal rate = currencyConverter.getExchangeRate(request.currency(), department.getCurrency());
         expense.setExchangeRate(rate);
 
-        return ExpenseResponse.fromEntity(expenseRepository.save(expense));
-    }
-
-    private Map<String, Object> extractReceiptMetadata(MultipartFile receiptImage) {
-        Map<String, Object> metadata = new HashMap<>();
-        
-        if (receiptImage != null && !receiptImage.isEmpty()) {
-            metadata.put("originalFilename", receiptImage.getOriginalFilename());
-            metadata.put("contentType", receiptImage.getContentType());
-            metadata.put("size", receiptImage.getSize());
-            metadata.put("uploadedAt", java.time.Instant.now().toString());
-            
-            // Extrair extensão do arquivo
-            String filename = receiptImage.getOriginalFilename();
-            if (filename != null && filename.contains(".")) {
-                String extension = filename.substring(filename.lastIndexOf("."));
-                metadata.put("fileExtension", extension);
-            }
+        try {
+            Metadata receiptImageMetadata = ImageMetadataReader.readMetadata(request.receiptImage().getInputStream());
+            Map<String, Map<String, String>> receiptImageMetadataMap = getImageMetadataMap(receiptImageMetadata);
+            expense.setReceiptMetadata(receiptImageMetadataMap);
+        } catch (ImageProcessingException | IOException e) { 
+            // Ignore metadata extraction errors
         }
-        
-        return metadata;
+
+        return ExpenseResponse.fromEntity(expenseRepository.save(expense));
     }
 
     @Transactional(readOnly = true)
@@ -92,6 +82,43 @@ public class ExpenseUseCase {
         Expense expense = expenseRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
         return ExpenseDetailResponse.fromEntity(expense);
+    }
+
+    /**
+     * Convert Metadata object to a Map representation.
+     * @param imageMetadata The Metadata object containing image metadata.
+     * @return A Map where each key is a directory name and the value is another Map of tag names to descriptions.
+     */
+    private Map<String, Map<String, String>> getImageMetadataMap(Metadata imageMetadata) {
+        Map<String, Map<String, String>> cleanedMetadata = new HashMap<>();
+
+        for (Directory directory : imageMetadata.getDirectories()) {
+            Map<String, String> tagsMap = new HashMap<>();
+            
+            for (Tag tag : directory.getTags()) {
+                String tagName = sanitize(tag.getTagName());
+                String description = sanitize(tag.getDescription());
+                
+                if (tagName != null) {
+                    tagsMap.put(tagName, description);
+                }
+            }
+            
+            if (!tagsMap.isEmpty()) {
+                cleanedMetadata.put(sanitize(directory.getName()), tagsMap);
+            }
+        }
+        return cleanedMetadata;
+    }
+
+    /**
+     * Sanitize a string by removing null characters and trimming whitespace.
+     * @param value The string to sanitize.
+     * @return The sanitized string.
+     */
+    private String sanitize(String value) {
+        if (value == null) return null;
+        return value.replace("\u0000", "").trim();
     }
 
 }
