@@ -2,6 +2,7 @@ package com.ubs.ExpenseManager.entities.expense;
 
 import com.ubs.ExpenseManager.config.UuidV7;
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
+import com.ubs.ExpenseManager.usecases.expense.strategies.MealExpenseStrategy;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,6 +23,7 @@ import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
+import org.jspecify.annotations.NonNull;
 
 @Entity
 @Table(name = "expenses")
@@ -123,4 +127,23 @@ public class Expense {
         
         return ExpenseStatus.PENDING;
     }
+
+    public @NonNull Result getMonthlyInterval() {
+        OffsetDateTime endOfMonth =
+                this.date
+                        .with(TemporalAdjusters.lastDayOfMonth())
+                        .toLocalDate()
+                        .atTime(LocalTime.MAX)
+                        .atOffset(date.getOffset());
+
+        OffsetDateTime beginningOfMonth =
+                this.date
+                        .with(TemporalAdjusters.firstDayOfMonth())
+                        .toLocalDate()
+                        .atTime(LocalTime.MAX)
+                        .atOffset(date.getOffset());
+        return new Result(endOfMonth, beginningOfMonth);
+    }
+
+    public record Result(OffsetDateTime endOfMonth, OffsetDateTime beginningOfMonth) {}
 }

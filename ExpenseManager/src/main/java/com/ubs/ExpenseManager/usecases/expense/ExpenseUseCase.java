@@ -71,9 +71,15 @@ public class ExpenseUseCase {
             // Ignore metadata extraction errors
         }
 
-        String fileName = String.format("receipts/%s", UuidCreator.getRandomBased());
-        String receiptUrl = storageGateway.uploadImage(request.receiptImage(), fileName);
-        expense.setReceiptUrl(receiptUrl);
+        boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
+                getInputArguments().toString().contains("-agentlib:jdwp");
+        if (!isDebug) {
+            String fileName = String.format("receipts/%s", UuidCreator.getRandomBased());
+            String receiptUrl = storageGateway.uploadImage(request.receiptImage(), fileName);
+            expense.setReceiptUrl(receiptUrl);
+        } else {
+            expense.setReceiptUrl("receiptUrl.dev");
+        }
 
         try {
             Expense savedExpense = expenseRepository.save(expense);

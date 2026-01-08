@@ -8,7 +8,6 @@ import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,13 +15,13 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MealExpenseStrategy implements ExpenseStrategy {
+public class TravelExpenseStrategy implements ExpenseStrategy{
     private final SpendingSettingRepository spendingSettingRepository;
     private final ExpenseRepository expenseRepository;
 
     @Override
     public boolean isKindOf(ExpenseCategory category) {
-        return category == ExpenseCategory.MEAL;
+        return category == ExpenseCategory.TRAVEL;
     }
 
     @Override
@@ -32,7 +31,7 @@ public class MealExpenseStrategy implements ExpenseStrategy {
                 expense.getCategory());
 
         BigDecimal expenseAmountConverted = expense.getAmount().multiply(expense.getExchangeRate());
-        Expense.@NonNull Result interval = expense.getMonthlyInterval();
+        Expense.Result interval = expense.getMonthlyInterval();
 
         List<Expense> approvedExpenses = expenseRepository
                 .findByDepartmentNameAndFinanceDecisionAndFinanceDecisionDateBetween(
@@ -51,12 +50,12 @@ public class MealExpenseStrategy implements ExpenseStrategy {
                 //TODO: trigger flag
                 System.out.println("trigger flag, the amount exceeds daily budget");
             }
-        }
 
-        BigDecimal remainingBudget = expense.getDepartment().getMonthlyBudget().subtract(totalAmountApproved);
-        if(remainingBudget.compareTo(expenseAmountConverted) < 0){
-            //TODO: trigger flag
-            System.out.println("trigger flag, the amount exceeds the Department budget");
+            BigDecimal remainingBudget = totalAmountApproved.subtract(expense.getDepartment().getMonthlyBudget());
+            if(remainingBudget.compareTo(expenseAmountConverted) < 0){
+                //TODO: trigger flag
+                System.out.println("trigger flag, the amount exceeds the Department budget");
+            }
         }
     }
 }
