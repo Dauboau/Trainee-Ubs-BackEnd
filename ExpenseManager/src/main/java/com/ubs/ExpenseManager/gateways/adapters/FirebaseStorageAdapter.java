@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.cloud.storage.Bucket;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.JpegWriter;
-import com.ubs.ExpenseManager.exceptions.ApiException;
+import com.ubs.ExpenseManager.exception.ApiException;
 import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
 
 import lombok.RequiredArgsConstructor;
