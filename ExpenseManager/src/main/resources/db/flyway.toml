@@ -29,3 +29,11 @@ ignoreNewlinesInTextObjects = "off"
 [environments.UBSExpenseManagerDev]
 url = "jdbc:postgresql://35.198.43.149:5432/ubs-expensemanager-dev"
 schemas = [ "public" ]
+
+[environments.UBSExpenseManagerQA]
+url = "jdbc:postgresql://35.198.43.149:5432/ubs-expensemanager-qa"
+schemas = [ "public" ]
+
+[environments.UBSExpenseManagerMain]
+url = "jdbc:postgresql://35.198.43.149:5432/ubs-expensemanager-main"
+schemas = [ "public" ]

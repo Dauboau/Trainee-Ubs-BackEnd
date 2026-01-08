@@ -6,12 +6,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -44,6 +47,9 @@ public class Department {
 
     @Column(name = "monthly_budget", nullable = false, precision = 15, scale = 2, insertable = false)
     private BigDecimal monthlyBudget = BigDecimal.ZERO;
+
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
+    private List<SpendingSetting> spendingSettings = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
