@@ -15,6 +15,7 @@ import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,8 +26,8 @@ public class ExpenseUseCase {
     private final ExpenseRepository expenseRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
-    private final CurrencyConverter currencyConverter;
     private final ExpenseProcessor expenseProcessor;
+    private final CurrencyConverter currencyConverter;
 
     public ExpenseResponse create(ExpenseRequest request) {
         Employee employee = employeeRepository.findById(request.employeeId())
@@ -48,10 +49,9 @@ public class ExpenseUseCase {
         java.math.BigDecimal rate = currencyConverter.getExchangeRate(request.currency(), department.getCurrency());
         expense.setExchangeRate(rate);
 
-
-        Expense saved = expenseRepository.save(expense);
-        expenseProcessor.process(saved);
-        return ExpenseResponse.fromEntity(saved);
+        Expense savedExpense = expenseRepository.save(expense);
+        expenseProcessor.process(savedExpense);
+        return ExpenseResponse.fromEntity(savedExpense);
     }
 
     @Transactional(readOnly = true)
