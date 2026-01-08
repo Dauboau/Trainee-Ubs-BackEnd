@@ -1,13 +1,15 @@
 package com.ubs.ExpenseManager.usecases.expense;
 
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
-import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
-import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
+
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
@@ -16,20 +18,19 @@ import com.drew.metadata.Tag;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
-import com.ubs.ExpenseManager.gateways.CurrencyExchangeGateway;
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import com.ubs.ExpenseManager.exceptions.ConflictException;
 import com.ubs.ExpenseManager.exceptions.ResourceNotFoundException;
+import com.ubs.ExpenseManager.gateways.CurrencyExchangeGateway;
 import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
+import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
+import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
+import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

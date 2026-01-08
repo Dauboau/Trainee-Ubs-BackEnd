@@ -34,7 +34,7 @@ public record ExpenseDetailResponse(
     Instant updatedAt,
     ExpenseStatus status
 ) {
-    public static ExpenseDetailResponse fromEntity(Expense expense){
+    public static ExpenseDetailResponse fromEntity(Expense expense) {
         return new ExpenseDetailResponse(
             expense.getId(),
             expense.getEmployee() != null ? EmployeeInfo.fromEntity(expense.getEmployee()) : null,

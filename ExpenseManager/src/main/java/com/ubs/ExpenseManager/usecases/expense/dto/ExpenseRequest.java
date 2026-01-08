@@ -14,20 +14,29 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record ExpenseRequest(
-    @NotNull
+
+    @NotNull(message = "Employee ID is required")
     UUID employeeId,
-    @NotBlank
+
+    @NotBlank(message = "Department name is required")
     String departmentName,
+
     String description,
-    @NotNull
-    @Positive
+
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be positive")
     BigDecimal amount,
-    @NotNull
+
+    @NotNull(message = "Currency is required")
     CurrencyCode currency,
-    @NotNull
+
+    @NotNull(message = "Expense category is required")
     ExpenseCategory category,
-    @NotNull
+
+    @NotNull(message = "Expense date is required")
     OffsetDateTime expenseDate,
-    @NotNull
+
+    @NotNull(message = "Receipt image is required")
     MultipartFile receiptImage
+
 ) {}
