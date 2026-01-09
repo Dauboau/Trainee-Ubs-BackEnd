@@ -13,30 +13,34 @@ import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
 public record ExpenseResponse(
     UUID id,
     UUID employeeId,
-    String employeeName,
     String departmentName,
     OffsetDateTime date,
     ExpenseCategory category,
     BigDecimal amount,
     CurrencyCode currency,
+    BigDecimal exchangeRate,
     String description,
     String receiptUrl,
+    Boolean revision,
     Instant createdAt,
+    Instant updatedAt,
     ExpenseStatus status
 ) {
     public static ExpenseResponse fromEntity(Expense expense) {
         return new ExpenseResponse(
             expense.getId(),
             expense.getEmployee() != null ? expense.getEmployee().getId() : null,
-            expense.getEmployee() != null ? expense.getEmployee().getName() : null,
             expense.getDepartment() != null ? expense.getDepartment().getName() : null,
             expense.getDate(),
             expense.getCategory(),
             expense.getAmount(),
             expense.getCurrency(),
+            expense.getExchangeRate(),
             expense.getDescription(),
             expense.getReceiptUrl(),
+            expense.getRevision(),
             expense.getCreatedAt(),
+            expense.getUpdatedAt(),
             expense.getStatus()
         );
     }

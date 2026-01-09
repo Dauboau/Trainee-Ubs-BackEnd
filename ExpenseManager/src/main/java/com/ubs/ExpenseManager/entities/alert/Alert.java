@@ -44,8 +44,8 @@ public class Alert {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false, columnDefinition = "alert_status", insertable = false)
-    private AlertStatus status;
+    @Column(nullable = false, columnDefinition = "alert_status")
+    private AlertStatus status = AlertStatus.NEW;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

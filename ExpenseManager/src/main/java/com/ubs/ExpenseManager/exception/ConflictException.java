@@ -1,4 +1,4 @@
-package com.ubs.ExpenseManager.exceptions;
+package com.ubs.ExpenseManager.exception;
 
 import org.springframework.http.HttpStatus;
 

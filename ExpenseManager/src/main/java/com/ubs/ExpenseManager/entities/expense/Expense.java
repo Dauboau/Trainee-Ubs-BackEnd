@@ -4,6 +4,7 @@ import com.ubs.ExpenseManager.config.UuidV7;
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import jakarta.persistence.*;
 import lombok.*;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -11,6 +12,7 @@ import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 import com.ubs.ExpenseManager.entities.department.Department;
@@ -87,15 +89,15 @@ public class Expense {
     @Column(name = "finance_decision_date")
     private OffsetDateTime financeDecisionDate;
 
-    @Column(nullable = false, insertable = false)
-    private Boolean revision;
+    @Column(nullable = false)
+    private Boolean revision = false;
 
     @Column(name = "receipt_url", nullable = false)
     private String receiptUrl;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "receipt_metadata", columnDefinition = "jsonb")
-    private String receiptMetadata;
+    private Map<String, Map<String, String>> receiptMetadata;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
