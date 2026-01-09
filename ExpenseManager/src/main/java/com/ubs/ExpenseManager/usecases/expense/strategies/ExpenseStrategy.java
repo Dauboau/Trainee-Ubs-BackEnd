@@ -6,5 +6,5 @@ import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 public interface ExpenseStrategy {
     boolean isKindOf(ExpenseCategory category);
 
-    void execute(Expense expense);
+    void calculateLimits(Expense expense);
 }

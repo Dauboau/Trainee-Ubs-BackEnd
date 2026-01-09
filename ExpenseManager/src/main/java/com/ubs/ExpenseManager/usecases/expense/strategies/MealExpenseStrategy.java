@@ -1,24 +1,22 @@
 package com.ubs.ExpenseManager.usecases.expense.strategies;
 
-import com.ubs.ExpenseManager.entities.department.SpendingSetting;
-import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.department.repository.SpendingSettingRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
-import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.List;
+///NOTE: Possible Improvements per-diem by location/grade; daily cap & per-item caps; require itemized receipt when amount > threshold;
+/// block alcohol or classify separately; allow partial personal split (share calculation); VAT/tax reclaim metadata extraction from receipt.
 
 @Component
 @RequiredArgsConstructor
 public class MealExpenseStrategy implements ExpenseStrategy {
     private final SpendingSettingRepository spendingSettingRepository;
     private final ExpenseRepository expenseRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public boolean isKindOf(ExpenseCategory category) {
@@ -26,37 +24,9 @@ public class MealExpenseStrategy implements ExpenseStrategy {
     }
 
     @Override
-    public void execute(Expense expense) {
-        SpendingSetting spendingSetting = spendingSettingRepository.findByIdDepartmentNameAndIdCategory(
-                expense.getDepartment().getName(),
-                expense.getCategory());
+    public void calculateLimits(Expense expense) {
 
-        BigDecimal expenseAmountConverted = expense.getAmount().multiply(expense.getExchangeRate());
-        Expense.@NonNull Result interval = expense.getMonthlyInterval();
+        eventPublisher.publishEvent(expense);
 
-        List<Expense> approvedExpenses = expenseRepository
-                .findByDepartmentNameAndFinanceDecisionAndFinanceDecisionDateBetween(
-                        expense.getDepartment().getName(),
-                        DecisionType.APPROVED,
-                        interval.endOfMonth(),
-                        interval.beginningOfMonth());
-
-        BigDecimal totalAmountApproved =
-                approvedExpenses.stream()
-                        .map(x -> x.getAmount().multiply(x.getExchangeRate()))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        if (spendingSetting.getType() == SpendingType.DAILY) {
-            if(spendingSetting.getBudget().compareTo(expenseAmountConverted)  < 0){
-                //TODO: trigger flag
-                System.out.println("trigger flag, the amount exceeds daily budget");
-            }
-        }
-
-        BigDecimal remainingBudget = expense.getDepartment().getMonthlyBudget().subtract(totalAmountApproved);
-        if(remainingBudget.compareTo(expenseAmountConverted) < 0){
-            //TODO: trigger flag
-            System.out.println("trigger flag, the amount exceeds the Department budget");
-        }
     }
 }
