@@ -140,10 +140,10 @@ public class Expense {
                 this.date
                         .with(TemporalAdjusters.firstDayOfMonth())
                         .toLocalDate()
-                        .atTime(LocalTime.MAX)
+                        .atTime(LocalTime.MIN)
                         .atOffset(date.getOffset());
-        return new Result(endOfMonth, beginningOfMonth);
+        return new Result(beginningOfMonth, endOfMonth);
     }
 
-    public record Result(OffsetDateTime endOfMonth, OffsetDateTime beginningOfMonth) {}
+    public record Result(OffsetDateTime beginningOfMonth, OffsetDateTime endOfMonth) {}
 }
