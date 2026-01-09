@@ -23,19 +23,42 @@ nano .env.prod
 docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod up --build
 ```
 
+
+### Test (test)
+```bash
+Ambiente para rodar os testes automatizados com um banco de dados isolado.
+# 1. Iniciar o banco de dados de teste
+docker compose -f docker-compose.test.yml up -d
+
+
+# 2. Executar os testes
+Os testes estão configurados para usar o perfil 'test' via `@ActiveProfiles("test")`.
+
+./mvnw test
+
+
+# 3. Parar o banco de dados de teste
+docker compose -f docker-compose.test.yml down
+
+```
+
 ## Estrutura de Arquivos
 
 ```
 ExpenseManager/
 ├── docker-compose.yml              # Configuração base
 ├── docker-compose.prod.yml         # Overrides para produção
+├── docker-compose.test.yml         # Configuração para o banco de dados de teste
 ├── .env.dev                        # Variáveis de desenvolvimento (gitignore)
 ├── .env.prod                       # Variáveis de produção (gitignore)
 ├── .env.prod.example              # Template para produção (versionado)
-└── src/main/resources/
-    ├── application.properties      # Configuração base
-    ├── application-dev.properties  # Configuração de desenvolvimento
-    └── application-prod.properties # Configuração de produção
+└── src/
+    ├── main/resources/
+    │   ├── application.properties      # Configuração base
+    │   ├── application-dev.properties  # Configuração de desenvolvimento
+    │   └── application-prod.properties # Configuração de produção
+    └── test/resources/
+        └── application-test.properties # Configuração para testes
 ```
 
 ## Variáveis de Ambiente
