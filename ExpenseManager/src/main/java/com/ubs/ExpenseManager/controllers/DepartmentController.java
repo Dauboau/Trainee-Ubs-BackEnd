@@ -4,6 +4,7 @@ import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.usecases.department.DepartmentUseCase;
 import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.DepartmentDetailedResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
 import com.ubs.ExpenseManager.usecases.department.dto.SpendingSettingRequest;
@@ -71,7 +72,7 @@ public class DepartmentController {
         @ApiResponse(responseCode = "403", description = "Access denied"),
         @ApiResponse(responseCode = "404", description = "Department not found")
     })
-    public ResponseEntity<DepartmentResponse> findById(@PathVariable String name) {
+    public ResponseEntity<DepartmentDetailedResponse> findById(@PathVariable String name) {
         return ResponseEntity.ok(departmentUseCase.findById(name));
     }
 

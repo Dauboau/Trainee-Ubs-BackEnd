@@ -10,6 +10,7 @@ import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.exception.ConflictException;
 import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.DepartmentDetailedResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
 import com.ubs.ExpenseManager.usecases.department.dto.SpendingSettingRequest;
@@ -47,8 +48,8 @@ public class DepartmentUseCase {
     }
 
     @Transactional(readOnly = true)
-    public DepartmentResponse findById(String name) {
-        return DepartmentResponse.fromEntity(departmentRepository.findById(name)
+    public DepartmentDetailedResponse findById(String name) {
+        return DepartmentDetailedResponse.fromEntity(departmentRepository.findById(name)
             .orElseThrow(() -> new ResourceNotFoundException("Department not found")));
     }
 

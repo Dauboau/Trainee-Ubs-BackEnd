@@ -6,7 +6,7 @@ import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
-import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
+import com.ubs.ExpenseManager.usecases.department.dto.DepartmentDetailedResponse;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,7 +16,7 @@ import java.util.UUID;
 public record ExpenseDetailResponse(
     UUID id,
     EmployeeInfo employee,
-    DepartmentResponse department,
+    DepartmentDetailedResponse department,
     OffsetDateTime date,
     ExpenseCategory category,
     BigDecimal amount,
@@ -35,7 +35,7 @@ public record ExpenseDetailResponse(
         return new ExpenseDetailResponse(
             expense.getId(),
             expense.getEmployee() != null ? EmployeeInfo.fromEntity(expense.getEmployee()) : null,
-            expense.getDepartment() != null ? DepartmentResponse.fromEntity(expense.getDepartment()) : null,
+            expense.getDepartment() != null ? DepartmentDetailedResponse.fromEntity(expense.getDepartment()) : null,
             expense.getDate(),
             expense.getCategory(),
             expense.getAmount(),
