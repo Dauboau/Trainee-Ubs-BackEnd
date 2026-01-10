@@ -52,4 +52,9 @@ public class SpendingSetting {
         return id != null ? id.getType() : null;
     }
     //NOTE: Consider adding column to track author of change.
+
+    public SpendingSetting(SpendingSettingId id, BigDecimal budget) {
+        this.id = id;
+        this.budget = budget;
+    }
 }
