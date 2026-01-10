@@ -58,4 +58,8 @@ public class Department {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
+    public Department(String name, CurrencyCode currency) {
+        this.name = name;
+        this.currency = currency;
+    }
 }
