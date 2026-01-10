@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiError> handleAuthenticationException(WebRequest request) {
-        String message = "Invalid credentials";
+        String message = "Authentication required";
         return build(HttpStatus.UNAUTHORIZED, message, request);
     }
 
