@@ -15,7 +15,9 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+
 import com.github.f4b6a3.uuid.UuidCreator;
+
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
 import com.ubs.ExpenseManager.entities.employee.Employee;
