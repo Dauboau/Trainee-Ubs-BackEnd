@@ -1,0 +1,13 @@
+package com.ubs.ExpenseManager.usecases.expense.strategies.settingStrategy;
+
+import com.ubs.ExpenseManager.entities.department.SpendingSetting;
+import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
+import com.ubs.ExpenseManager.entities.expense.Expense;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+public interface SpendingValidationStrategy {
+    SpendingType getType();
+    void validate(Expense expense, SpendingSetting setting, List<Expense> approvedExpenses, BigDecimal expenseAmountConverted);
+}

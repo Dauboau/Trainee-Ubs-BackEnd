@@ -8,15 +8,16 @@ import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import com.ubs.ExpenseManager.usecases.alert.AlertUseCase;
+import com.ubs.ExpenseManager.usecases.expense.strategies.settingStrategy.SpendingValidationFactory;
+import com.ubs.ExpenseManager.usecases.expense.strategies.settingStrategy.SpendingValidationStrategy;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 @AllArgsConstructor
@@ -24,60 +25,53 @@ public class ExpenseObserver {
     private final SpendingSettingRepository spendingSettingRepository;
     private final ExpenseRepository expenseRepository;
     private final AlertUseCase alertUseCase;
+    private final SpendingValidationFactory validationFactory;
 
     @EventListener
     @Transactional
     public void alertObserver(Expense expense) {
-        SpendingSetting spendingSetting = spendingSettingRepository.findByIdDepartmentNameAndIdCategory(
+        // 1. Busca todas as configurações (DAILY, MONTHLY) para a categoria
+        List<SpendingSetting> settings = spendingSettingRepository.findByIdDepartmentNameAndIdCategory(
                 expense.getDepartment().getName(),
                 expense.getCategory());
 
-        if (spendingSetting == null) {
+        // Se não houver configuração, gera alerta e encerra
+        if (settings == null || settings.isEmpty()) {
             String message = "The category " + expense.getCategory() + " is not configured.";
             alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
             return;
         }
 
+        // 2. Prepara os dados básicos para os cálculos
         BigDecimal expenseAmountConverted = expense.getAmount().multiply(expense.getExchangeRate());
-        Expense.@NonNull Result interval = expense.getMonthlyInterval();
+        Expense.Result interval = expense.getMonthlyInterval();
 
+        // Busca despesas aprovadas do mês (uma única ida ao banco)
         List<Expense> approvedExpenses = expenseRepository
                 .findByDepartmentNameAndFinanceDecisionAndFinanceDecisionDateBetween(
                         expense.getDepartment().getName(),
                         DecisionType.APPROVED,
-                        interval.endOfMonth(),
-                        interval.beginningOfMonth());
+                        interval.beginningOfMonth(),
+                        interval.endOfMonth());
 
-        BigDecimal totalAmountApprovedForDepartment =
-                approvedExpenses.stream()
-                        .map(x -> x.getAmount().multiply(x.getExchangeRate()))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        if (spendingSetting.getType() == SpendingType.DAILY) {
-            if (spendingSetting.getBudget().compareTo(expenseAmountConverted) < 0) {
-                String message = "The requested amount ("+ expense.getAmount() +") exceeds the daily budget of '"+ spendingSetting.getBudget() +"' for category ("+ expense.getCategory() +")";
-                alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
+        settings.forEach(setting -> {
+            SpendingValidationStrategy strategy = validationFactory.getStrategy(setting.getId().getType());
+            if (strategy != null) {
+                strategy.validate(expense, setting, approvedExpenses, expenseAmountConverted);
             }
-        }
+        });
 
-        if (spendingSetting.getType() == SpendingType.MONTHLY) {
-            BigDecimal totalAmountSpentForCategory = approvedExpenses.stream()
-                    .filter(x -> x.getCategory() == expense.getCategory())
-                    .map(x -> x.getAmount().multiply(x.getExchangeRate()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-
-            if (spendingSetting.getBudget().compareTo(totalAmountSpentForCategory) < 0) {
-                BigDecimal remainingAmount = spendingSetting.getBudget().subtract(totalAmountSpentForCategory);
-                String message = "The requested amount ("+ expense.getAmount() +") exceeds the available monthly budget '"+ remainingAmount +"' for category ("+ expense.getCategory() +")";
-                alertUseCase.create(expense.getId(), AlertType.CATEGORY_MONTHLY, message);
-            }
-        }
+        // 4. Validação do Orçamento do Departamento (Independente de categoria)
+        BigDecimal totalAmountApprovedForDepartment = approvedExpenses.stream()
+                .map(x -> x.getAmount().multiply(x.getExchangeRate()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal remainingDepartmentBudget = expense.getDepartment().getMonthlyBudget().subtract(totalAmountApprovedForDepartment);
+
         if (remainingDepartmentBudget.compareTo(expenseAmountConverted) < 0) {
-            String message = "The amount("+ expense.getAmount() +") exceeds the available budget of: " + remainingDepartmentBudget;
+            String message = "The amount (" + expense.getAmount() + ") exceeds the available department budget of: " + remainingDepartmentBudget;
             alertUseCase.create(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
         }
     }
 }
+

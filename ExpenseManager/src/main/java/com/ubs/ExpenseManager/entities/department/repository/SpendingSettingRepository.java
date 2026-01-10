@@ -10,8 +10,5 @@ import java.util.List;
 
 @Repository
 public interface SpendingSettingRepository extends JpaRepository<SpendingSetting, SpendingSettingId> {
-    
-    List<SpendingSetting> findByIdDepartmentName(String departmentName);
-
-    SpendingSetting findByIdDepartmentNameAndIdCategory(String department, ExpenseCategory category);
+    List<SpendingSetting> findByIdDepartmentNameAndIdCategory(String department, ExpenseCategory category);
 }

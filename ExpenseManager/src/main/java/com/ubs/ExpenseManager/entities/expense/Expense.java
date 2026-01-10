@@ -2,7 +2,6 @@ package com.ubs.ExpenseManager.entities.expense;
 
 import com.ubs.ExpenseManager.config.UuidV7;
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
-import com.ubs.ExpenseManager.usecases.expense.strategies.MealExpenseStrategy;
 import jakarta.persistence.*;
 import lombok.*;
 

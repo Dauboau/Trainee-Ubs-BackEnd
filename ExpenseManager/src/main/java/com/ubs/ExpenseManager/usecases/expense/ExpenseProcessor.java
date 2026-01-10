@@ -1,7 +1,7 @@
 package com.ubs.ExpenseManager.usecases.expense;
 
 import com.ubs.ExpenseManager.entities.expense.Expense;
-import com.ubs.ExpenseManager.usecases.expense.strategies.ExpenseStrategy;
+import com.ubs.ExpenseManager.usecases.expense.strategies.categoryStrategy.ExpenseStrategy;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;

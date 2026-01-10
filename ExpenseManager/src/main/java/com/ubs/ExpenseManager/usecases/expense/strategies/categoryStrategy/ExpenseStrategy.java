@@ -1,4 +1,4 @@
-package com.ubs.ExpenseManager.usecases.expense.strategies;
+package com.ubs.ExpenseManager.usecases.expense.strategies.categoryStrategy;
 
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
