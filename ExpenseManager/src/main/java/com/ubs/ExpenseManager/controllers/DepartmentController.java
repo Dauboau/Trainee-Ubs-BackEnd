@@ -1,9 +1,14 @@
 package com.ubs.ExpenseManager.controllers;
 
+import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 import com.ubs.ExpenseManager.usecases.department.DepartmentUseCase;
 import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.DepartmentDetailedResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.SpendingSettingRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.SpendingSettingResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.UpdateDepartmentRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,7 +72,7 @@ public class DepartmentController {
         @ApiResponse(responseCode = "403", description = "Access denied"),
         @ApiResponse(responseCode = "404", description = "Department not found")
     })
-    public ResponseEntity<DepartmentResponse> findById(@PathVariable String name) {
+    public ResponseEntity<DepartmentDetailedResponse> findById(@PathVariable String name) {
         return ResponseEntity.ok(departmentUseCase.findById(name));
     }
 
@@ -131,6 +136,64 @@ public class DepartmentController {
     })
     public ResponseEntity<Void> delete(@PathVariable String name) {
         departmentUseCase.delete(name);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Create spending setting", description = "Creates a new spending setting for a department")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Spending setting created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Department not found"),
+        @ApiResponse(responseCode = "409", description = "Spending setting already exists")
+    })
+    @PostMapping("/{name}/spending-settings")
+    public ResponseEntity<SpendingSettingResponse> createSpendingSetting(@PathVariable String name,
+        @Valid @RequestBody SpendingSettingRequest request) {
+        SpendingSettingResponse response = departmentUseCase.createSpendingSetting(name, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{name}/spending-settings")
+    @Operation(summary = "Update spending setting", description = "Updates ")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Department updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "401", description = "Not authenticated"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Department not found"),
+        @ApiResponse(responseCode = "409", description = "Department already exists")
+    })
+    public ResponseEntity<SpendingSettingResponse> updateSpendingSetting(@PathVariable String name,
+        @Valid @RequestBody SpendingSettingRequest request) {
+        SpendingSettingResponse response = departmentUseCase.updateSpendingSetting(name, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{name}/spending-settings")
+    @Operation(summary = "List spending settings", description = "Returns all spending settings from a department")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Department's spending settings list retrieved successfully"),
+        @ApiResponse(responseCode = "401", description = "Not authenticated"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Department not found")
+    })
+    public ResponseEntity<List<SpendingSettingResponse>> listSpendingSettings(@PathVariable String name) {
+        return ResponseEntity.ok(departmentUseCase.listSpendingSettings(name));
+    }
+
+    @DeleteMapping("/{name}/spending-settings/{category}/{type}")
+    @Operation(summary = "List spending settings", description = "Returns all spending settings from a department")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Department's spending settings list retrieved successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "401", description = "Not authenticated"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Department not found")
+    })
+    public ResponseEntity<Void> deleteSpendingSetting(@PathVariable String name,
+        @PathVariable ExpenseCategory category, @PathVariable SpendingType type) {
+        departmentUseCase.deleteSpendingSetting(name, category, type);
         return ResponseEntity.noContent().build();
     }
 }
