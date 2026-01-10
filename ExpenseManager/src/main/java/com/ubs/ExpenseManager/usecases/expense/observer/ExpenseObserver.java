@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
+
+import static jakarta.persistence.GenerationType.UUID;
 
 
 @Service
@@ -70,8 +73,11 @@ public class ExpenseObserver {
 
         if (remainingDepartmentBudget.compareTo(expenseAmountConverted) < 0) {
             String message = "The amount (" + expense.getAmount() + ") exceeds the available department budget of: " + remainingDepartmentBudget;
-            alertUseCase.create(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
+            this.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
         }
+    }
+    public void sendAlert(UUID expenseId, AlertType alert, String message){
+        alertUseCase.create(expenseId, alert, message);
     }
 }
 

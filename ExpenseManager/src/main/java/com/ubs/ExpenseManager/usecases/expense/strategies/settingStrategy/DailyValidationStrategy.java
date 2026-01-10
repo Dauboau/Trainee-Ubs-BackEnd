@@ -5,6 +5,7 @@ import com.ubs.ExpenseManager.entities.department.SpendingSetting;
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.usecases.alert.AlertUseCase;
+import com.ubs.ExpenseManager.usecases.expense.observer.ExpenseObserver;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DailyValidationStrategy implements SpendingValidationStrategy {
     private final AlertUseCase alertUseCase;
+    private final ExpenseObserver expenseObserver;
 
 
     @Override
@@ -36,12 +38,14 @@ public class DailyValidationStrategy implements SpendingValidationStrategy {
             String message = String.format("The requested amount (%s) exceeds the daily budget of '%s' for category (%s)",
                     expense.getAmount(), setting.getBudget(), expense.getCategory());
             //alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
+            expenseObserver.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
         }
         //Validates that the remaining budget for today is less than the projected amount
         if (remainingDailyBudget.compareTo(projectedTotal) < 0) {
             String message = String.format("The requested amount (%s) exceeds the remaining daily budget of '%s' for category (%s)",
                     expense.getAmount(), remainingDailyBudget, expense.getCategory());
            // alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
+            expenseObserver.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
         }
     }
 }
