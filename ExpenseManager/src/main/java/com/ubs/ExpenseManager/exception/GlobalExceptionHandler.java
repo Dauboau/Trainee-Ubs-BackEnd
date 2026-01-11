@@ -1,10 +1,10 @@
 package com.ubs.ExpenseManager.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import com.ubs.ExpenseManager.entities.employee.enums.Role;
 
-import java.util.Objects;
 import javax.naming.AuthenticationException;
 
 import org.springframework.http.HttpStatus;
@@ -28,16 +28,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(
-        MethodArgumentNotValidException ex,
-        WebRequest request
+        MethodArgumentNotValidException ex, WebRequest request
     ) {
-        String message = ex.getBindingResult()
+        FieldError fieldError = ex.getBindingResult()
             .getFieldErrors()
             .stream()
-            .map(FieldError::getDefaultMessage)
-            .filter(Objects::nonNull)
             .findFirst()
-            .orElse("Invalid request format");
+            .orElse(null);
+
+        String message = fieldError != null
+            ? fieldError.getDefaultMessage() + " (" + fieldError.getField() + ")"
+            : "Invalid request format";
+
         return build(HttpStatus.BAD_REQUEST, message, request);
     }
 
@@ -49,7 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiError> handleAuthenticationException(WebRequest request) {
-        String message = "Invalid credentials";
+        String message = "Authentication required";
         return build(HttpStatus.UNAUTHORIZED, message, request);
     }
 
