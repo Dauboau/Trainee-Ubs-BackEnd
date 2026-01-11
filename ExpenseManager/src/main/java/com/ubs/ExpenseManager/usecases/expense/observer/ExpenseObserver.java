@@ -1,6 +1,5 @@
 package com.ubs.ExpenseManager.usecases.expense.observer;
 
-import com.ubs.ExpenseManager.entities.alert.Alert;
 import com.ubs.ExpenseManager.usecases.alert.AlertUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -14,11 +13,11 @@ import java.util.List;
 public class ExpenseObserver {
     private final AlertUseCase alertUseCase;
 
-    @EventListener
     @Transactional
-    public void handleAlerts(List<Alert> alerts) {
-        alerts.forEach(alert ->
-                alertUseCase.create(alert.getId(), alert.getType(), alert.getMessage())
+    @EventListener
+    public void handleAlerts(AlertsCreatedEvent alertsCreatedEvent) {
+        alertsCreatedEvent.getAlerts().forEach(alert ->
+                alertUseCase.create(alert.getExpense().getId(), alert.getType(), alert.getMessage())
         );
     }
 }

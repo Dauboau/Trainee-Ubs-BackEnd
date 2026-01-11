@@ -55,6 +55,9 @@ public class Alert {
     @Column
     private Instant updatedAt;
 
-    public Alert(UUID id, Expense expense, AlertType alertType, String message) {
+    public Alert(Expense expense, AlertType alertType, String message) {
+        this.expense = expense;
+        this.type = alertType;
+        this.message = message;
     }
 }
