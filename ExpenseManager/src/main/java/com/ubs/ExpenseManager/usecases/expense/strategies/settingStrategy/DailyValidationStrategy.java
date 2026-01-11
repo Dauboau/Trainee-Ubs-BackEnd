@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class DailyValidationStrategy implements SpendingValidationStrategy {
     private final AlertUseCase alertUseCase;
-    private final ExpenseObserver expenseObserver;
 
 
     @Override
@@ -31,21 +30,20 @@ public class DailyValidationStrategy implements SpendingValidationStrategy {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);;
 
         BigDecimal projectedTotal = amoutApprovedToday.add(amountConverted);
-        BigDecimal remainingDailyBudget = expense.getAmount().subtract(amoutApprovedToday);
+        BigDecimal remainingDailyBudget = setting.getBudget().subtract(amoutApprovedToday);
 
         //Validates if the amount itself exceeds in
         if (setting.getBudget().compareTo(amountConverted) < 0) {
             String message = String.format("The requested amount (%s) exceeds the daily budget of '%s' for category (%s)",
                     expense.getAmount(), setting.getBudget(), expense.getCategory());
-            //alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
-            expenseObserver.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
+            alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
+            return;
         }
         //Validates that the remaining budget for today is less than the projected amount
         if (remainingDailyBudget.compareTo(projectedTotal) < 0) {
             String message = String.format("The requested amount (%s) exceeds the remaining daily budget of '%s' for category (%s)",
                     expense.getAmount(), remainingDailyBudget, expense.getCategory());
-           // alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
-            expenseObserver.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
+           alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
         }
     }
 }

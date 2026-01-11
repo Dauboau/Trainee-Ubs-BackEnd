@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class MonthlyValidationStrategy implements SpendingValidationStrategy {
     private final AlertUseCase alertUseCase;
-    private final ExpenseObserver expenseObserver;
 
     @Override
     public SpendingType getType() {
@@ -40,13 +39,13 @@ public class MonthlyValidationStrategy implements SpendingValidationStrategy {
             BigDecimal remaining = setting.getBudget().subtract(totalSpentInCategory);
             String message = String.format("The requested amount (%s) exceeds the available monthly budget '%s' for category (%s)",
                     expense.getAmount(), remaining, expense.getCategory());
-            expenseObserver.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
+            alertUseCase.create(expense.getId(), AlertType.CATEGORY_MONTHLY, message);
         }
         //validates if the amountConverted surpasses the budget limit
         if (setting.getBudget().compareTo(amountConverted) < 0) {
             String message = String.format("The requested amount (%s) exceeds the budget '%s' for category (%s)",
                     expense.getAmount(), setting.getBudget(), expense.getCategory());
-            expenseObserver.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
+            alertUseCase.create(expense.getId(), AlertType.CATEGORY_MONTHLY, message);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.ubs.ExpenseManager.usecases.expense.observer;
 
+import com.ubs.ExpenseManager.entities.alert.Alert;
 import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
 import com.ubs.ExpenseManager.entities.department.SpendingSetting;
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
@@ -21,6 +22,10 @@ import java.util.UUID;
 
 import static jakarta.persistence.GenerationType.UUID;
 
+public class ExpenseEvent {
+    public Expense Expense;
+    public List<Alert> Alerts;
+}
 
 @Service
 @AllArgsConstructor
@@ -32,10 +37,10 @@ public class ExpenseObserver {
 
     @EventListener
     @Transactional
-    public void alertObserver(Expense expense) {
+    public void alertObserver(ExpenseEvent expenseEvent) {
         // 1. Busca todas as configurações (DAILY, MONTHLY) para a categoria
         List<SpendingSetting> settings = spendingSettingRepository.findByIdDepartmentNameAndIdCategory(
-                expense.getDepartment().getName(),
+                expenseEvent.Expense.getDepartment().getName(),
                 expense.getCategory());
 
         // Se não houver configuração, gera alerta e encerra
@@ -73,11 +78,8 @@ public class ExpenseObserver {
 
         if (remainingDepartmentBudget.compareTo(expenseAmountConverted) < 0) {
             String message = "The amount (" + expense.getAmount() + ") exceeds the available department budget of: " + remainingDepartmentBudget;
-            this.sendAlert(expense.getId(), AlertType.DEPARTMENT_MONTHLY, message);
+            alertUseCase.create(expense.getId(), AlertType.CATEGORY_DAILY, message);
         }
-    }
-    public void sendAlert(UUID expenseId, AlertType alert, String message){
-        alertUseCase.create(expenseId, alert, message);
     }
 }
 
