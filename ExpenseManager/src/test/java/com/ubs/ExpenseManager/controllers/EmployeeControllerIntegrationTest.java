@@ -149,6 +149,76 @@ class EmployeeControllerIntegrationTest {
 
     }
 
+
+    @Test
+    @Transactional
+    @DisplayName("ReallocateEmployees")
+    void shouldChangeManager() throws Exception{
+        Employee originalManager = employeeRepository.findById(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+                .orElseThrow(() -> new RuntimeException("Original manager not found!"));
+
+        // Addition of Employee
+        EmployeeRequest request = new EmployeeRequest("Saulo", "SalesManager@ubs.com", originalManager.getId(), "123", "SYSTEM", "Manager", Role.MANAGER);
+        String json = objectMapper.writeValueAsString(request);
+        mockMvc.perform(post("/api/employees")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        Employee newManager = employeeRepository.findByEmail("SalesManager@ubs.com")
+                .orElseThrow(() -> new RuntimeException("New manager not found!"));
+
+        // Change employees manager
+        ManagerReallocationRequest reallocationRequest = new ManagerReallocationRequest(originalManager.getId(), newManager.getId());
+        String reallocationJson = objectMapper.writeValueAsString(reallocationRequest);
+
+        System.out.println("Before reallocating:");
+        mockMvc.perform(get("/api/employees"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        List<Employee> subordinatesOfOriginalBefore = employeeRepository.findAllByManagerId(reallocationRequest.currentManagerId());
+        List<Employee> subordinatesOfNewBefore = employeeRepository.findAllByManagerId(reallocationRequest.newManagerId());
+        System.out.println("Subordinates of original manager:");
+        for (Employee subordinate : subordinatesOfOriginalBefore) {
+            System.out.println("Name: "+subordinate.getName());
+        }
+        System.out.println("Subordinates of new manager:");
+        for (Employee subordinate : subordinatesOfNewBefore) {
+            System.out.println("Name: "+subordinate.getName());
+        }
+
+        // Reallocate request
+        mockMvc.perform(post("/api/employees/reallocate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reallocationJson))
+                .andExpect(status().is2xxSuccessful());
+
+        System.out.println("After reallocation");
+        mockMvc.perform(get("/api/employees"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        List<Employee> subordinatesOfOriginal = employeeRepository.findAllByManagerId(reallocationRequest.currentManagerId());
+        List<Employee> subordinatesOfNew = employeeRepository.findAllByManagerId(reallocationRequest.newManagerId());
+
+        System.out.println("Subordinates of original manager:");
+        for (Employee subordinate : subordinatesOfOriginal) {
+            System.out.println("Name: "+subordinate.getName());
+        }
+        System.out.println("Subordinates of new manager:");
+        for (Employee subordinate : subordinatesOfNew) {
+            System.out.println("Name: "+subordinate.getName());
+        }
+
+        assertThat(subordinatesOfNew)
+                .extracting(Employee::getName)
+                .containsExactlyInAnyOrder(
+                        "Saulo",
+                        "Silvio Mann"
+                );
+    }
+
+    // GET RELATED TESTS
     @Test
     @DisplayName("FindAllEmployees")
     void shouldReturnAllEmployees() throws Exception {
@@ -165,7 +235,6 @@ class EmployeeControllerIntegrationTest {
     @Test
     @DisplayName("FindEmployeeById")
     void shouldReturnEmployeeById() throws Exception {
-        //placeholder
         System.out.println("List item 1/2: Starting test");
         mockMvc.perform(get("/api/employees/22222222-2222-2222-2222-222222222222"))
                 .andExpect(status().isOk())
@@ -216,85 +285,7 @@ class EmployeeControllerIntegrationTest {
         assertEquals( "[{\"id\":\"22222222-2222-2222-2222-222222222222\",\"name\":\"Silvio Mann\",\"email\":\"manager@empresa.com\",\"departmentName\":\"SYSTEM\",\"role\":\"MANAGER\"}]", responseBody, "Response does not match expected result, or not all managers were listed.");
     }
 
-    @Test
-    @Transactional
-    @DisplayName("ReallocateEmployees")
-    void shouldChangeManager() throws Exception{
-        Employee originalManager = employeeRepository.findById(UUID.fromString("22222222-2222-2222-2222-222222222222"))
-                .orElseThrow(() -> new RuntimeException("Original manager not found!"));
-//
-//        EmployeeRequest loginEmployee = new EmployeeRequest("Carlos", "carlos@ubs.com", originalManager.getId(), "123", "SYSTEM", "QA expert", Role.ADMIN);
-//        employeeUseCase.create(loginEmployee);
-
-//         AuthenticationRequest loginRequest = new AuthenticationRequest("carlos@ubs.com", "123");
-//                String loginJson = objectMapper.writeValueAsString(loginRequest);
-//
-//                mockMvc.perform(post("/api/auth/login")
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(loginJson))
-//                        .andExpect(status().is2xxSuccessful());
-
-        // Addition of Employee
-        EmployeeRequest request = new EmployeeRequest("Saulo", "SalesManager@ubs.com", originalManager.getId(), "123", "SYSTEM", "Manager", Role.MANAGER);
-        String json = objectMapper.writeValueAsString(request);
-        mockMvc.perform(post("/api/employees")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json));
-
-        Employee newManager = employeeRepository.findByEmail("SalesManager@ubs.com")
-                .orElseThrow(() -> new RuntimeException("New manager not found!"));
-
-        // Change employees manager
-        ManagerReallocationRequest reallocationRequest = new ManagerReallocationRequest(originalManager.getId(), newManager.getId());
-        String reallocationJson = objectMapper.writeValueAsString(reallocationRequest);
-
-        System.out.println("Before reallocating:");
-        mockMvc.perform(get("/api/employees"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        List<Employee> subordinatesOfOriginalBefore = employeeRepository.findAllByManagerId(reallocationRequest.currentManagerId());
-        List<Employee> subordinatesOfNewBefore = employeeRepository.findAllByManagerId(reallocationRequest.newManagerId());
-        System.out.println("Subordinates of original manager:");
-        for (Employee subordinate : subordinatesOfOriginalBefore) {
-            System.out.println("Name: "+subordinate.getName());
-        }
-        System.out.println("Subordinates of new manager:");
-        for (Employee subordinate : subordinatesOfNewBefore) {
-            System.out.println("Name: "+subordinate.getName());
-        }
-
-        // Reallocate request
-        mockMvc.perform(post("/api/employees/reallocate")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(reallocationJson))
-                .andExpect(status().is2xxSuccessful());
-
-        System.out.println("After reallocation");
-        mockMvc.perform(get("/api/employees"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        List<Employee> subordinatesOfOriginal = employeeRepository.findAllByManagerId(reallocationRequest.currentManagerId());
-        List<Employee> subordinatesOfNew = employeeRepository.findAllByManagerId(reallocationRequest.newManagerId());
-
-        System.out.println("Subordinates of original manager:");
-        for (Employee subordinate : subordinatesOfOriginal) {
-            System.out.println("Name: "+subordinate.getName());
-        }
-        System.out.println("Subordinates of new manager:");
-        for (Employee subordinate : subordinatesOfNew) {
-            System.out.println("Name: "+subordinate.getName());
-        }
-
-        assertThat(subordinatesOfNew)
-                .extracting(Employee::getName)
-                .containsExactlyInAnyOrder(
-                        "Saulo",
-                        "Silvio Mann"
-                );
-    }
-
+    // DELETE RELATED TESTS
     @Test
     @Transactional
     @DisplayName("DeleteEmployeeById")

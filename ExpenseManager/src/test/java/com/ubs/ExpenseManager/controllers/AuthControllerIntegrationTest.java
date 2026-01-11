@@ -66,7 +66,6 @@ class AuthControllerIntegrationTest {
     }
 
     public String getAdminUserLoginRequest() throws Exception {
-        //
         Employee originalManager = employeeRepository.findById(UUID.fromString("22222222-2222-2222-2222-222222222222"))
                 .orElseThrow(() -> new RuntimeException("Original manager not found!"));
 
@@ -79,18 +78,6 @@ class AuthControllerIntegrationTest {
 
         AuthenticationRequest loginRequest = new AuthenticationRequest("carlos@ubs.com", "123");
         return objectMapper.writeValueAsString(loginRequest);
-
-//        return String loginJson = objectMapper.writeValueAsString(loginRequest);
-//
-//        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(loginJson))
-//                .andExpect(status().is2xxSuccessful())
-//                .andReturn();
-//
-//        String loginResponse = loginResult.getResponse().getContentAsString();
-//
-//        return JsonPath.read(loginResponse, "$.token");
     }
 
     @Test
@@ -102,10 +89,6 @@ class AuthControllerIntegrationTest {
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print())
                 .andReturn();
-
-//        String loginResponse = loginResult.getResponse().getContentAsString();
-
-//        JsonPath.read(loginResponse, "$.token");
     }
 
     @Test
