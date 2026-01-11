@@ -25,11 +25,13 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-        AuthenticationException authException) throws IOException, ServletException {
+        AuthenticationException authException) throws IOException {
         ApiError apiError = new ApiError(
             HttpStatus.UNAUTHORIZED.value(),
             HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-            "Authentication required",
+            authException.getMessage() == null
+                ? "Authentication required"
+                : authException.getMessage(),
             request.getRequestURI()
         );
 
