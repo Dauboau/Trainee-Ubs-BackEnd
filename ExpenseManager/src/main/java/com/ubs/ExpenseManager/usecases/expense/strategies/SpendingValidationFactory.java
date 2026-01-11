@@ -1,4 +1,4 @@
-package com.ubs.ExpenseManager.usecases.expense.strategies.settingStrategy;
+package com.ubs.ExpenseManager.usecases.expense.strategies;
 
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import org.springframework.beans.factory.annotation.Autowired;

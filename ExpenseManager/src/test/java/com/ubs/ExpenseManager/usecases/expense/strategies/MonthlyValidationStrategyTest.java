@@ -1,5 +1,6 @@
 package com.ubs.ExpenseManager.usecases.expense.strategies;
 
+import com.ubs.ExpenseManager.entities.alert.Alert;
 import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.SpendingSetting;
@@ -9,48 +10,23 @@ import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
-import com.ubs.ExpenseManager.usecases.alert.AlertUseCase;
-import com.ubs.ExpenseManager.usecases.expense.strategies.settingStrategy.MonthlyValidationStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @DisplayName("MonthlyValidationStrategy Tests")
 class MonthlyValidationStrategyTest {
 
-    @Mock
-    private AlertUseCase alertUseCase;
-
-    @InjectMocks
     private MonthlyValidationStrategy strategy;
-
-    @Captor
-    private ArgumentCaptor<UUID> expenseIdCaptor;
-
-    @Captor
-    private ArgumentCaptor<AlertType> alertTypeCaptor;
-
-    @Captor
-    private ArgumentCaptor<String> messageCaptor;
-
     private Expense testExpense;
     private SpendingSetting monthlySetting;
     private Department department;
@@ -58,6 +34,8 @@ class MonthlyValidationStrategyTest {
 
     @BeforeEach
     void setUp() {
+        strategy = new MonthlyValidationStrategy();
+
         // Setup department
         department = new Department();
         department.setName("Engineering");
@@ -98,68 +76,60 @@ class MonthlyValidationStrategyTest {
     }
 
     @Test
-    @DisplayName("Should pass validation when expense is within monthly budget and no prior expenses")
-    void shouldPassValidation_WhenWithinBudget_NoPriorExpenses() {
+    @DisplayName("Should not add alerts when expense is within monthly budget and no prior expenses")
+    void shouldNotAddAlerts_WhenWithinBudget_NoPriorExpenses() {
         // Given
         List<Expense> approvedExpenses = List.of();
+        List<Alert> alerts = new ArrayList<>();
         BigDecimal amountConverted = new BigDecimal("1000");
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, never()).create(any(), any(), any());
+        assertThat(alerts).isEmpty();
     }
 
     @Test
-    @DisplayName("Should send alert when expense amount itself exceeds monthly budget")
-    void shouldSendAlert_WhenAmountExceedsMonthlyBudget() {
+    @DisplayName("Should add alert when expense amount itself exceeds monthly budget")
+    void shouldAddAlert_WhenAmountExceedsMonthlyBudget() {
         // Given
         testExpense.setAmount(new BigDecimal("12000"));
         BigDecimal amountConverted = new BigDecimal("12000");
         List<Expense> approvedExpenses = List.of();
+        List<Alert> alerts = new ArrayList<>();
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, times(2)).create(
-                expenseIdCaptor.capture(),
-                alertTypeCaptor.capture(),
-                messageCaptor.capture()
-        );
-
-        assertThat(expenseIdCaptor.getValue()).isEqualTo(testExpense.getId());
-        assertThat(alertTypeCaptor.getValue()).isEqualTo(AlertType.CATEGORY_DAILY);
-        assertThat(messageCaptor.getValue()).contains("exceeds the budget");
-        assertThat(messageCaptor.getValue()).contains("12000");
-        assertThat(messageCaptor.getValue()).contains("TRAVEL");
+        assertThat(alerts).hasSize(1);
+        assertThat(alerts.get(0).getType()).isEqualTo(AlertType.CATEGORY_MONTHLY);
+        assertThat(alerts.get(0).getMessage()).contains("exceeds the monthly budget");
+        assertThat(alerts.get(0).getMessage()).contains("12000");
+        assertThat(alerts.get(0).getMessage()).contains("TRAVEL");
     }
 
     @Test
-    @DisplayName("Should send alert when projected total exceeds monthly budget")
-    void shouldSendAlert_WhenProjectedTotalExceedsMonthlyBudget() {
+    @DisplayName("Should add alert when projected total exceeds monthly budget")
+    void shouldAddAlert_WhenProjectedTotalExceedsMonthlyBudget() {
         // Given
         Expense priorExpense1 = createExpenseInMonth(new BigDecimal("6000"), 5);
         Expense priorExpense2 = createExpenseInMonth(new BigDecimal("3000"), 10);
         List<Expense> approvedExpenses = List.of(priorExpense1, priorExpense2);
+        List<Alert> alerts = new ArrayList<>();
 
         testExpense.setAmount(new BigDecimal("2000"));
         BigDecimal amountConverted = new BigDecimal("2000");
         // Total: 6000 + 3000 + 2000 = 11000 > 10000
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, times(1)).create(
-                eq(testExpense.getId()),
-                eq(AlertType.CATEGORY_DAILY),
-                messageCaptor.capture()
-        );
-
-        assertThat(messageCaptor.getValue()).contains("exceeds the available monthly budget");
-        assertThat(messageCaptor.getValue()).contains("2000");
+        assertThat(alerts).hasSize(1);
+        assertThat(alerts.get(0).getType()).isEqualTo(AlertType.CATEGORY_MONTHLY);
+        assertThat(alerts.get(0).getMessage()).contains("exceeds the available monthly budget");
     }
 
     @Test
@@ -173,6 +143,7 @@ class MonthlyValidationStrategyTest {
         mealExpense.setCategory(ExpenseCategory.MEAL); // Different category
 
         List<Expense> approvedExpenses = List.of(travelExpense, mealExpense);
+        List<Alert> alerts = new ArrayList<>();
 
         testExpense.setAmount(new BigDecimal("4000"));
         testExpense.setCategory(ExpenseCategory.TRAVEL);
@@ -180,31 +151,31 @@ class MonthlyValidationStrategyTest {
         // Only TRAVEL: 5000 + 4000 = 9000 < 10000
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, never()).create(any(), any(), any());
+        assertThat(alerts).isEmpty();
     }
 
     @Test
     @DisplayName("Should consider all expenses in the month regardless of day")
     void shouldConsiderAllExpensesInMonth() {
         // Given
-        Expense expense1 = createExpenseInMonth(new BigDecimal("2000"), 1);  // First day
-        Expense expense2 = createExpenseInMonth(new BigDecimal("3000"), 15); // Middle
-        Expense expense3 = createExpenseInMonth(new BigDecimal("2000"), 31); // Last day
-
+        Expense expense1 = createExpenseInMonth(new BigDecimal("2000"), 1);
+        Expense expense2 = createExpenseInMonth(new BigDecimal("3000"), 15);
+        Expense expense3 = createExpenseInMonth(new BigDecimal("2000"), 31);
         List<Expense> approvedExpenses = List.of(expense1, expense2, expense3);
+        List<Alert> alerts = new ArrayList<>();
 
         testExpense.setAmount(new BigDecimal("4000"));
         BigDecimal amountConverted = new BigDecimal("4000");
         // Total: 2000 + 3000 + 2000 + 4000 = 11000 > 10000
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, times(1)).create(any(), any(), any());
+        assertThat(alerts).hasSize(1);
     }
 
     @Test
@@ -214,6 +185,7 @@ class MonthlyValidationStrategyTest {
         Expense priorExpense = createExpenseInMonth(new BigDecimal("2000"), 10);
         priorExpense.setExchangeRate(new BigDecimal("2.5")); // 2000 * 2.5 = 5000
         List<Expense> approvedExpenses = List.of(priorExpense);
+        List<Alert> alerts = new ArrayList<>();
 
         testExpense.setAmount(new BigDecimal("6000"));
         testExpense.setExchangeRate(BigDecimal.ONE);
@@ -221,46 +193,48 @@ class MonthlyValidationStrategyTest {
         // Total: 5000 + 6000 = 11000 > 10000
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, times(1)).create(any(), any(), any());
+        assertThat(alerts).hasSize(1);
     }
 
     @Test
-    @DisplayName("Should send both alerts when both conditions are violated")
-    void shouldSendBothAlerts_WhenBothConditionsViolated() {
+    @DisplayName("Should add both alerts when both conditions are violated")
+    void shouldAddBothAlerts_WhenBothConditionsViolated() {
         // Given
         testExpense.setAmount(new BigDecimal("12000")); // Exceeds budget itself
         BigDecimal amountConverted = new BigDecimal("12000");
 
         Expense priorExpense = createExpenseInMonth(new BigDecimal("1000"), 5);
         List<Expense> approvedExpenses = List.of(priorExpense);
-        // Projected: 1000 + 12000 = 13000 > 10000
+        List<Alert> alerts = new ArrayList<>();
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, times(2)).create(any(), any(), any());
+        assertThat(alerts).hasSize(2);
+        assertThat(alerts).allMatch(alert -> alert.getType() == AlertType.CATEGORY_MONTHLY);
     }
 
     @Test
-    @DisplayName("Should pass validation when expense exactly equals remaining budget")
-    void shouldPassValidation_WhenExactlyEqualsRemainingBudget() {
+    @DisplayName("Should not add alerts when expense exactly equals remaining budget")
+    void shouldNotAddAlerts_WhenExactlyEqualsRemainingBudget() {
         // Given
         Expense priorExpense = createExpenseInMonth(new BigDecimal("7000"), 5);
         List<Expense> approvedExpenses = List.of(priorExpense);
+        List<Alert> alerts = new ArrayList<>();
 
         testExpense.setAmount(new BigDecimal("3000"));
         BigDecimal amountConverted = new BigDecimal("3000");
         // Total: 7000 + 3000 = 10000 (exactly the budget)
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, never()).create(any(), any(), any());
+        assertThat(alerts).isEmpty();
     }
 
     @Test
@@ -269,38 +243,17 @@ class MonthlyValidationStrategyTest {
         // Given
         Expense priorExpense = createExpenseInMonth(new BigDecimal("6000"), 5);
         List<Expense> approvedExpenses = List.of(priorExpense);
+        List<Alert> alerts = new ArrayList<>();
 
-        testExpense.setAmount(new BigDecimal("5000"));
-        BigDecimal amountConverted = new BigDecimal("5000");
-        // Remaining: 10000 - 6000 = 4000
-        // Projected: 6000 + 5000 = 11000 > 10000
-
-        // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
-
-        // Then
-        verify(alertUseCase, times(1)).create(
-                any(),
-                any(),
-                messageCaptor.capture()
-        );
-
-        assertThat(messageCaptor.getValue()).contains("4000"); // Remaining budget
-    }
-
-    @Test
-    @DisplayName("Should handle empty approved expenses list")
-    void shouldHandleEmptyApprovedExpenses() {
-        // Given
-        List<Expense> approvedExpenses = List.of();
         testExpense.setAmount(new BigDecimal("5000"));
         BigDecimal amountConverted = new BigDecimal("5000");
 
         // When
-        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted);
+        strategy.validate(testExpense, monthlySetting, approvedExpenses, amountConverted, alerts);
 
         // Then
-        verify(alertUseCase, never()).create(any(), any(), any());
+        assertThat(alerts).hasSize(1);
+        assertThat(alerts.get(0).getMessage()).contains("4000"); // Remaining: 10000 - 6000
     }
 
     // Helper methods

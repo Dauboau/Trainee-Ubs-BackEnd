@@ -54,4 +54,7 @@ public class Alert {
     @UpdateTimestamp
     @Column
     private Instant updatedAt;
+
+    public Alert(UUID id, Expense expense, AlertType alertType, String message) {
+    }
 }
