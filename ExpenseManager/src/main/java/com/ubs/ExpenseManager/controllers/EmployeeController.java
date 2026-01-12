@@ -1,9 +1,9 @@
 package com.ubs.ExpenseManager.controllers;
 
 import com.ubs.ExpenseManager.usecases.employee.EmployeeUseCase;
-import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeRequest;
+import com.ubs.ExpenseManager.usecases.employee.dto.CreateEmployeeRequest;
 import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeResponse;
-import com.ubs.ExpenseManager.usecases.employee.dto.ManagerReallocationRequest;
+import com.ubs.ExpenseManager.usecases.employee.dto.UpdateEmployeeRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,16 +18,23 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/employees")
+@ApiResponses({
+    @ApiResponse(responseCode = "401", description = "Authentication required"),
+    @ApiResponse(responseCode = "403", description = "Access denied")
+})
 @RequiredArgsConstructor
 @Tag(name = "Employees", description = "Employee management endpoints")
 public class EmployeeController {
@@ -41,8 +48,25 @@ public class EmployeeController {
         @ApiResponse(responseCode = "400", description = "Invalid request data"),
         @ApiResponse(responseCode = "409", description = "Email already in use")
     })
-    public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody EmployeeRequest request) {
+    public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeUseCase.create(request));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update employee", description = "Updates an existing employee")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Employee updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "404", description = "Employee not found"),
+        @ApiResponse(responseCode = "409", description = "Email already in use"),
+        @ApiResponse(
+            responseCode = "422",
+            description = "Employee cannot be deactivated because they manage other employees"
+        )
+    })
+    public ResponseEntity<EmployeeResponse> update(@PathVariable UUID id,
+        @Valid @RequestBody UpdateEmployeeRequest request) {
+        return ResponseEntity.ok(employeeUseCase.update(id, request));
     }
 
     @GetMapping
@@ -75,37 +99,35 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeUseCase.findById(id));
     }
 
-    @PostMapping("/reallocate")
+    @PatchMapping("/{id}/activate")
     @Operation(
-        summary = "Reallocate subordinates to another manager",
-        description = "Transfers all employees from the current manager to a new manager"
+        summary = "Activate employee",
+        description = "Activates an inactive employee, allowing access to the system"
     )
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Subordinates reallocated successfully"),
-        @ApiResponse(responseCode = "404", description = "Manager not found"),
-        @ApiResponse(
-            responseCode = "422",
-            description = "Business rule violation during manager reallocation"
-        )
+        @ApiResponse(responseCode = "204", description = "Employee activated successfully"),
+        @ApiResponse(responseCode = "404", description = "Employee not found")
     })
-    public ResponseEntity<Void> reallocateManager(
-        @Valid @RequestBody ManagerReallocationRequest request) {
-        employeeUseCase.reallocateManager(request);
+    public ResponseEntity<Void> activate(@PathVariable UUID id) {
+        employeeUseCase.changeActiveStatus(id, true);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete employee", description = "Removes an employee from the system")
+    @PatchMapping("/{id}/deactivate")
+    @Operation(
+        summary = "Deactivate employee",
+        description = "Deactivates an employee, removing their access to the system"
+    )
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Employee deleted successfully"),
+        @ApiResponse(responseCode = "204", description = "Employee deactivated successfully"),
         @ApiResponse(responseCode = "404", description = "Employee not found"),
         @ApiResponse(
             responseCode = "422",
-            description = "Employee cannot be deleted because they manage other employees"
+            description = "Employee cannot be deactivated because they manage other employees"
         )
     })
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        employeeUseCase.delete(id);
+    public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
+        employeeUseCase.changeActiveStatus(id, false);
         return ResponseEntity.noContent().build();
     }
 }
