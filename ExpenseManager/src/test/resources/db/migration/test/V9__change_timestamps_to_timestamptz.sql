@@ -1,0 +1,26 @@
+-- Change created_at and updated_at columns to TIMESTAMP WITH TIME ZONE for all tables
+
+-- departments table
+ALTER TABLE departments
+ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE,
+ALTER COLUMN updated_at TYPE TIMESTAMP WITH TIME ZONE;
+
+-- employees table
+ALTER TABLE employees
+ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE,
+ALTER COLUMN updated_at TYPE TIMESTAMP WITH TIME ZONE;
+
+-- expenses table
+ALTER TABLE expenses
+ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE,
+ALTER COLUMN updated_at TYPE TIMESTAMP WITH TIME ZONE;
+
+-- alerts table
+ALTER TABLE alerts
+ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE,
+ALTER COLUMN updated_at TYPE TIMESTAMP WITH TIME ZONE;
+
+-- spending_settings table
+ALTER TABLE spending_settings
+ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE,
+ALTER COLUMN updated_at TYPE TIMESTAMP WITH TIME ZONE;
