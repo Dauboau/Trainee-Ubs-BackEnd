@@ -22,8 +22,5 @@ public record UpdateEmployeeRequest(
     String departmentName,
 
     @NotBlank(message = "Position is required")
-    String position,
-
-    @NotNull(message = "Active status is required")
-    Boolean active
+    String position
 ) {}

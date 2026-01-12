@@ -13,6 +13,7 @@ import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeResponse;
 import com.ubs.ExpenseManager.usecases.employee.dto.UpdateEmployeeRequest;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
@@ -58,17 +59,30 @@ public class EmployeeUseCase {
         Department department = getDepartment(request.departmentName());
         Employee manager = getValidManager(request.managerId());
 
+        if (!hasChanges(employee, request, department, manager)) {
+            throw new BusinessRuleException("No changes detected to update employee");
+        }
+
         employee.setName(request.name());
         employee.setEmail(request.email());
         employee.setManager(manager);
         employee.setDepartment(department);
-        employee.setActive(request.active());
         employee.setPosition(request.position());
+
         try {
             return EmployeeResponse.fromEntity(employeeRepository.saveAndFlush(employee));
         } catch (DataIntegrityViolationException ex) {
             throw new ConflictException(("Email already in use"));
         }
+    }
+
+    private boolean hasChanges(Employee employee, UpdateEmployeeRequest request,
+        Department department, Employee manager) {
+        return !Objects.equals(employee.getName(), request.name())
+            || !Objects.equals(employee.getEmail(), request.email())
+            || !Objects.equals(employee.getManager(), manager)
+            || !Objects.equals(employee.getDepartment(), department)
+            || !Objects.equals(employee.getPosition(), request.position());
     }
 
     private Employee getValidManager(UUID managerId) {
@@ -101,18 +115,16 @@ public class EmployeeUseCase {
             .toList();
     }
 
-    @Transactional(readOnly = true)
-    public EmployeeResponse findById(UUID id) {
-        return employeeRepository.findById(id)
-            .map(EmployeeResponse::fromEntity)
-            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
-    }
 
     public void changeActiveStatus(UUID id, boolean active) {
         Employee employee = employeeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
-        if (!active ) {
+        if (employee.getActive() == active) {
+            throw new BusinessRuleException("Employee active status is already set to " + active);
+        }
+
+        if (!active) {
             validateManagerDeactivation(employee);
         }
 

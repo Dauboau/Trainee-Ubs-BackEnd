@@ -92,7 +92,8 @@ public class DepartmentController {
         @ApiResponse(responseCode = "200", description = "Department updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid request data"),
         @ApiResponse(responseCode = "404", description = "Department not found"),
-        @ApiResponse(responseCode = "409", description = "Conflicting department data")
+        @ApiResponse(responseCode = "409", description = "Conflicting department data"),
+        @ApiResponse(responseCode = "422", description = "No changes detected to update department"),
     })
     public ResponseEntity<DepartmentDetailedResponse> update(@PathVariable String name,
         @Valid @RequestBody UpdateDepartmentRequest request) {
