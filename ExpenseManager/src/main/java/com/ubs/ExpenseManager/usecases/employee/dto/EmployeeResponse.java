@@ -10,8 +10,7 @@ public record EmployeeResponse(
     String name,
     String email,
     String departmentName,
-    Role role,
-    Boolean active
+    Role role
 ) {
     public static EmployeeResponse fromEntity(Employee employee) {
         return new EmployeeResponse(
@@ -19,8 +18,7 @@ public record EmployeeResponse(
             employee.getName(),
             employee.getEmail(),
             employee.getDepartment().getName(),
-            employee.getRole(),
-            employee.getActive()
+            employee.getRole()
         );
     }
 }

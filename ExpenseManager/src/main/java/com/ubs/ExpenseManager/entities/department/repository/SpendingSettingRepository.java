@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpendingSettingRepository extends
     JpaRepository<SpendingSetting, SpendingSettingId> {
+
+    void deleteAllByDepartment_Name(String departmentName);
 }
