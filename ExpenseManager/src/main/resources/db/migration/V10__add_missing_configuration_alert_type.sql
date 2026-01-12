@@ -1,0 +1,2 @@
+-- Add MISSING_CONFIGURATION value to alert_type enum
+ALTER TYPE alert_type ADD VALUE 'MISSING_CONFIGURATION';
