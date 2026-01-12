@@ -4,6 +4,9 @@ import com.ubs.ExpenseManager.security.jwt.CustomUserDetailsService;
 import com.ubs.ExpenseManager.security.jwt.JwtService;
 import com.ubs.ExpenseManager.utils.Constants.Jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,10 +16,12 @@ import java.io.IOException;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -28,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -39,18 +45,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(Jwt.JWT_BEARER.length());
-        String login = jwtService.extractLogin(token);
 
-        if (userNotAuthenticated(login)) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(login);
-            if (jwtService.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = buildAuthToken(userDetails,
-                    request);
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            String login = jwtService.extractLogin(token);
+            if (userNotAuthenticated(login)) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(login);
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = buildAuthToken(userDetails,
+                        request);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException ex) {
+            authenticationEntryPoint.commence(
+                request,
+                response,
+                new BadCredentialsException("Token expired")
+            );
+        } catch (JwtException ex) {
+            SecurityContextHolder.clearContext();
+            authenticationEntryPoint.commence(
+                request,
+                response,
+                new BadCredentialsException("Invalid token", ex)
+            );
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String getAuthHeader(HttpServletRequest request) {

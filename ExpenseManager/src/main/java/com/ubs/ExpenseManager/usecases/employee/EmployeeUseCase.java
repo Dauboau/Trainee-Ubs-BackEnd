@@ -8,9 +8,9 @@ import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.exception.BusinessRuleException;
 import com.ubs.ExpenseManager.exception.ConflictException;
 import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
-import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeRequest;
+import com.ubs.ExpenseManager.usecases.employee.dto.CreateEmployeeRequest;
 import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeResponse;
-import com.ubs.ExpenseManager.usecases.employee.dto.ManagerReallocationRequest;
+import com.ubs.ExpenseManager.usecases.employee.dto.UpdateEmployeeRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,13 +31,9 @@ public class EmployeeUseCase {
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public EmployeeResponse create(EmployeeRequest request) {
-
-        Department department = departmentRepository.findById(request.departmentId())
-            .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
-
-        Employee manager = employeeRepository.findByIdAndRoleAndActiveTrue(request.managerId(),
-                Role.MANAGER).orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
+    public EmployeeResponse create(CreateEmployeeRequest request) {
+        Department department = getDepartment(request.departmentName());
+        Employee manager = getValidManager(request.managerId());
 
         Employee employee = new Employee();
         employee.setManager(manager);
@@ -55,16 +51,51 @@ public class EmployeeUseCase {
         }
     }
 
+    public EmployeeResponse update(UUID id, UpdateEmployeeRequest request) {
+        Employee employee = employeeRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+
+        Department department = getDepartment(request.departmentName());
+        Employee manager = getValidManager(request.managerId());
+
+        employee.setName(request.name());
+        employee.setEmail(request.email());
+        employee.setManager(manager);
+        employee.setDepartment(department);
+        employee.setActive(request.active());
+        employee.setPosition(request.position());
+        try {
+            return EmployeeResponse.fromEntity(employeeRepository.saveAndFlush(employee));
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException(("Email already in use"));
+        }
+    }
+
+    private Employee getValidManager(UUID managerId) {
+        Employee manager = employeeRepository.findByIdAndRole(managerId, Role.MANAGER)
+            .orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
+
+        if (!manager.getActive()) {
+            throw new BusinessRuleException("Manager is not active");
+        }
+        return manager;
+    }
+
+    private Department getDepartment(String name) {
+        return departmentRepository.findById(name)
+            .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+    }
+
     @Transactional(readOnly = true)
     public List<EmployeeResponse> findAll() {
-        return employeeRepository.findAllByActiveTrue().stream()
+        return employeeRepository.findAll().stream()
             .map(EmployeeResponse::fromEntity)
             .toList();
     }
 
     @Transactional(readOnly = true)
     public List<EmployeeResponse> findAllManagers() {
-        return employeeRepository.findAllByActiveTrueAndRole(Role.MANAGER)
+        return employeeRepository.findAllByRole(Role.MANAGER)
             .stream()
             .map(EmployeeResponse::fromEntity)
             .toList();
@@ -72,50 +103,30 @@ public class EmployeeUseCase {
 
     @Transactional(readOnly = true)
     public EmployeeResponse findById(UUID id) {
-        return employeeRepository.findByIdAndActiveTrue(id)
+        return employeeRepository.findById(id)
             .map(EmployeeResponse::fromEntity)
             .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
     }
 
-    public void reallocateManager(ManagerReallocationRequest request) {
-        if (request.currentManagerId().equals(request.newManagerId())) {
-            throw new BusinessRuleException("The new manager must be different from the "
-                + "current one");
+    public void changeActiveStatus(UUID id, boolean active) {
+        Employee employee = employeeRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+
+        if (!active ) {
+            validateManagerDeactivation(employee);
         }
 
-        Employee current = employeeRepository.findByIdAndActiveTrue(request.currentManagerId())
-            .orElseThrow(() -> new ResourceNotFoundException("Current manager not found"));
-
-        Employee newManager = employeeRepository.findByIdAndActiveTrue(request.newManagerId())
-            .orElseThrow(() -> new ResourceNotFoundException("New manager not found"));
-
-        if (current.getRole() != Role.MANAGER || newManager.getRole() != Role.MANAGER) {
-            throw new BusinessRuleException("Both employees must have the manager role");
-        }
-
-        List<Employee> subordinates = employeeRepository.findAllByManagerId(
-            request.currentManagerId());
-        if (subordinates.isEmpty()) {
-            throw new BusinessRuleException("The current manager has no subordinates "
-                + "to reallocate");
-        }
-
-        for (Employee emp : subordinates) {
-            emp.setManager(newManager);
-        }
-        employeeRepository.saveAll(subordinates);
+        employee.setActive(active);
+        employeeRepository.save(employee);
     }
 
-    public void delete(UUID id) {
-        Employee employee = employeeRepository.findByIdAndActiveTrue(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+    private void validateManagerDeactivation(Employee employee) {
         if (employee.getRole() == Role.MANAGER) {
             if (employeeRepository.existsByManagerId(employee.getId())) {
-                throw new BusinessRuleException("The manager cannot be deactivated while they have "
-                    + "subordinates. Reallocate them first");
+                throw new BusinessRuleException(
+                    "The manager cannot be deactivated while they have subordinates. Reallocate them first"
+                );
             }
         }
-        employee.setActive(false);
-        employeeRepository.save(employee);
     }
 }

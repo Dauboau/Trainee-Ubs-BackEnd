@@ -12,7 +12,7 @@ import com.ubs.ExpenseManager.entities.employee.enums.Role;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationRequest;
 import com.ubs.ExpenseManager.usecases.employee.EmployeeUseCase;
-import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeRequest;
+import com.ubs.ExpenseManager.usecases.employee.dto.CreateEmployeeRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -90,7 +90,7 @@ public class DepartmentControllerIntegrationTest {
         Optional<Employee> existing = employeeRepository.findByEmail("carlos@ubs.com");
 
         if (existing.isEmpty()) {
-            EmployeeRequest loginEmployee = new EmployeeRequest("Carlos", "carlos@ubs.com", originalManager.getId(), "123", "SYSTEM", "QA expert", Role.ADMIN);
+            CreateEmployeeRequest loginEmployee = new CreateEmployeeRequest("Carlos", "carlos@ubs.com", originalManager.getId(), "123", "SYSTEM", "QA expert", Role.ADMIN);
             employeeUseCase.create(loginEmployee);
         }
 
@@ -117,9 +117,9 @@ public class DepartmentControllerIntegrationTest {
         Department new_department = new Department("Sales", CurrencyCode.EUR);
         String json = objectMapper.writeValueAsString(new_department);
         mockMvc.perform(post("/api/departments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer "+getTestToken())
-                .content(json))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+getTestToken())
+                        .content(json))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
     }
@@ -132,9 +132,9 @@ public class DepartmentControllerIntegrationTest {
         String json = objectMapper.writeValueAsString(ghost_department);
 
         mockMvc.perform(post("/api/departments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer "+getTestToken())
-                .content(json))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+getTestToken())
+                        .content(json))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -200,7 +200,7 @@ public class DepartmentControllerIntegrationTest {
         repository.save(new Department("HR", CurrencyCode.USD));
 
         MvcResult result = mockMvc.perform(get("/api/departments")
-                .header("Authorization", "Bearer "+getTestToken()))
+                        .header("Authorization", "Bearer "+getTestToken()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -228,8 +228,8 @@ public class DepartmentControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer "+getTestToken())
                         .content(request))
-                        .andDo(print())
-                        .andExpect(status().is2xxSuccessful());
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful());
 
         System.out.println("\nGet with new data:");
         mockMvc.perform(get("/api/departments/RH")
@@ -257,8 +257,8 @@ public class DepartmentControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer "+getTestToken())
                         .content(request))
-                        .andDo(print())
-                        .andExpect(status().is2xxSuccessful());
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful());
 
         System.out.println("\nGet with new name:");
         mockMvc.perform(get("/api/departments/RecursosHumanos")

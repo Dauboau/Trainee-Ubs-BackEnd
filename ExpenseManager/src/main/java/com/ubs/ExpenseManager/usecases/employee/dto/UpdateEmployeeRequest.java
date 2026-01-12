@@ -1,14 +1,12 @@
 package com.ubs.ExpenseManager.usecases.employee.dto;
 
-import com.ubs.ExpenseManager.entities.employee.enums.Role;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record EmployeeRequest(
+public record UpdateEmployeeRequest(
 
     @NotBlank(message = "Name is required")
     String name,
@@ -20,15 +18,12 @@ public record EmployeeRequest(
     @NotNull(message = "Manager id is required")
     UUID managerId,
 
-    @NotBlank(message = "Password is required")
-    String password,
-
     @NotBlank(message = "Department id is required")
-    String departmentId,
+    String departmentName,
 
     @NotBlank(message = "Position is required")
     String position,
 
-    @NotNull(message = "Role is required")
-    Role role
+    @NotNull(message = "Active status is required")
+    Boolean active
 ) {}

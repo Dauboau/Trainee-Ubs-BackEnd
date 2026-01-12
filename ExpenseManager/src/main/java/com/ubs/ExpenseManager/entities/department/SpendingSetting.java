@@ -51,4 +51,9 @@ public class SpendingSetting {
     public SpendingType getType() {
         return id != null ? id.getType() : null;
     }
+
+    public SpendingSetting(SpendingSettingId id, BigDecimal budget) {
+        this.id = id;
+        this.budget = budget;
+    }
 }

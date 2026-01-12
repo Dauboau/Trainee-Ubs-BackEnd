@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface DepartmentRepository extends JpaRepository<Department, String> {
-    Optional<Department> findByName(String name);
+    boolean existsByName(String name);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE departments SET name = :newName WHERE name = :oldName", nativeQuery = true)
