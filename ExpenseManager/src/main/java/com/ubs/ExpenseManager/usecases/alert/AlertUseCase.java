@@ -19,7 +19,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class AlertUseCase {
 
     private final AlertRepository alertRepository;
@@ -27,7 +26,7 @@ public class AlertUseCase {
 
     public AlertResponse create(UUID expenseId, AlertType type, String message) {
         Expense expense = expenseRepository.findById(expenseId)
-            .orElseThrow(() -> new ResourceNotFoundException("Despesa não encontrada"));
+            .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
 
         Alert alert = new Alert();
         alert.setExpense(expense);

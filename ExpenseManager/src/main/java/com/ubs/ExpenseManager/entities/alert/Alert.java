@@ -54,4 +54,10 @@ public class Alert {
     @UpdateTimestamp
     @Column
     private Instant updatedAt;
+
+    public Alert(Expense expense, AlertType alertType, String message) {
+        this.expense = expense;
+        this.type = alertType;
+        this.message = message;
+    }
 }
