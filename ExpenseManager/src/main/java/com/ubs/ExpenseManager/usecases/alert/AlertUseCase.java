@@ -37,29 +37,16 @@ public class AlertUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<AlertResponse> findAll() {
-        return alertRepository.findAll().stream()
-            .map(AlertResponse::fromEntity)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<AlertResponse> findByExpenseId(UUID expenseId) {
-        return alertRepository.findByExpenseId(expenseId).stream()
-            .map(AlertResponse::fromEntity)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
     public List<AlertResponse> findByStatus(AlertStatus status) {
         return alertRepository.findByStatus(status).stream()
             .map(AlertResponse::fromEntity)
             .toList();
     }
 
+    @Transactional
     public AlertResponse resolve(UUID id) {
         Alert alert = alertRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Alerta não encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Alert Not Found"));
 
         alert.setStatus(AlertStatus.RESOLVED);
         return AlertResponse.fromEntity(alertRepository.save(alert));
