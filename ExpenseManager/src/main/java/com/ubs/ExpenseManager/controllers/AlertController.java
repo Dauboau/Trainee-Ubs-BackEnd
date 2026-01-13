@@ -29,6 +29,10 @@ import java.util.UUID;
         description = "Endpoints for managing expense alerts and notifications. Alerts are automatically generated when expenses exceed budgets or require attention."
 )
 @SecurityRequirement(name = "bearerAuth")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "Authentication required"),
+        @ApiResponse(responseCode = "403", description = "Access denied")
+})
 public class AlertController {
 
     private final AlertUseCase alertUseCase;
@@ -51,16 +55,16 @@ public class AlertController {
                                     value = """
                     [
                         {
-                            "id": "550e8400-e29b-41d4-a716-446655440000",
-                            "expenseId": "660e8400-e29b-41d4-a716-446655440001",
+                            "id": "111a1111-b22b-33c3-a111-222222222222",
+                            "expenseId": "111a1111-a11a-11a1-a111-111111111111",
                             "type": "BUDGET_EXCEEDED",
                             "message": "Monthly budget exceeded by 15% in Marketing category",
                             "status": "NEW",
                             "createdAt": "2026-01-13T14:30:00Z"
                         },
                         {
-                            "id": "550e8400-e29b-41d4-a716-446655440002",
-                            "expenseId": "660e8400-e29b-41d4-a716-446655440003",
+                            "id": "111a1111-b22b-33c3-a111-222222222223",
+                            "expenseId": "111a1111-a11a-11a1-a111-111111111112",
                             "type": "DUPLICATE_EXPENSE",
                             "message": "Potential duplicate expense detected",
                             "status": "NEW",
@@ -70,14 +74,6 @@ public class AlertController {
                     """
                             )
                     )
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized - Authentication token is missing or invalid"
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - User does not have FINANCE role"
             )
     })
     public ResponseEntity<List<AlertResponse>> findUnresolved() {
@@ -88,7 +84,7 @@ public class AlertController {
     @PreAuthorize("hasRole('FINANCE')")
     @Operation(
             summary = "Resolve an alert",
-            description = "Marks a specific alert as resolved by changing its status from NEW to RESOLVED. This action indicates that the finance team has reviewed and addressed the alert."
+            description = "Marks a specific alert as resolved by changing its status from NEW to RESOLVED. This action indicates that the finance team has reviewed and addressed the alert. The alert must be in NEW status to be resolved."
     )
     @ApiResponses({
             @ApiResponse(
@@ -101,8 +97,8 @@ public class AlertController {
                                     name = "Resolved alert response",
                                     value = """
                     {
-                        "id": "550e8400-e29b-41d4-a716-446655440000",
-                        "expenseId": "660e8400-e29b-41d4-a716-446655440001",
+                        "id": "111a1111-b22b-33c3-a111-222222222224",
+                            "expenseId": "111a1111-a11a-11a1-a111-111111111114",
                         "type": "BUDGET_EXCEEDED",
                         "message": "Departmental Budget Overrun: The requested amount (100000 USD) exceeds the total",
                         "status": "RESOLVED",
@@ -115,27 +111,37 @@ public class AlertController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Alert not found - No alert exists with the provided ID",
+                    description = "Alert not found",
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     value = """
                     {
-                        "error": "Resource Not Found",
-                        "message": "Alert Not Found",
-                        "timestamp": "2026-01-13T18:22:00Z"
+                        "status": 404,
+                        "error": "Not Found",
+                        "message": "Alert not found",
+                        "path": "/api/alerts/111a1111-b22b-33c3-a111-222222222224/resolve"
                     }
                     """
                             )
                     )
             ),
             @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized - Authentication token is missing or invalid"
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - User does not have FINANCE role"
+                    responseCode = "409",
+                    description = "Alert is already resolved",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                    {
+                        "status": 409,
+                        "error": "Conflict",
+                        "message": "Alert is already resolved",
+                        "path": "/api/alerts/111a1111-b22b-33c3-a111-222222222224/resolve"
+                    }
+                    """
+                            )
+                    )
             )
     })
     public ResponseEntity<AlertResponse> resolve(
