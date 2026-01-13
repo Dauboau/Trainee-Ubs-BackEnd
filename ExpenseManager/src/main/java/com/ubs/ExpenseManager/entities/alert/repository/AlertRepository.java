@@ -14,4 +14,5 @@ public interface AlertRepository extends JpaRepository<Alert, UUID> {
     List<Alert> findByExpenseId(UUID expenseId);
     List<Alert> findByStatus(AlertStatus status);
     List<Alert> findByExpenseIdAndStatus(UUID expenseId, AlertStatus status);
+
 }
