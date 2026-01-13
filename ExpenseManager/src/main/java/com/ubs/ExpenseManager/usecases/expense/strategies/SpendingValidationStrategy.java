@@ -1,6 +1,5 @@
 package com.ubs.ExpenseManager.usecases.expense.strategies;
 
-import com.ubs.ExpenseManager.entities.alert.Alert;
 import com.ubs.ExpenseManager.entities.department.SpendingSetting;
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.expense.Expense;

@@ -55,6 +55,10 @@ public class AlertUseCase {
         }
 
         alert.setStatus(AlertStatus.RESOLVED);
+
+        Expense expense = alert.getExpense();
+        expense.setRevision(false);
+
         return AlertResponse.fromEntity(alertRepository.save(alert));
     }
 }
