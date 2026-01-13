@@ -10,8 +10,7 @@ import com.ubs.ExpenseManager.security.jwt.JwtService;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationRequest;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationResponse;
 import com.ubs.ExpenseManager.usecases.auth.dto.NewPasswordRequest;
-import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeResponse;
-
+import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeDetailedResponse;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -33,7 +32,7 @@ public class AuthUseCase {
 
     private AuthenticationResponse buildAuthenticationResponse(Employee employee) {
         String jwtToken = jwtService.generateToken(employee);
-        return new AuthenticationResponse(jwtToken, EmployeeResponse.fromEntity(employee));
+        return new AuthenticationResponse(jwtToken, EmployeeDetailedResponse.fromEntity(employee));
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {

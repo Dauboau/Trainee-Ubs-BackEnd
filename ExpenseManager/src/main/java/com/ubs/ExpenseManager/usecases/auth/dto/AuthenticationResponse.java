@@ -1,8 +1,8 @@
 package com.ubs.ExpenseManager.usecases.auth.dto;
 
-import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeResponse;
+import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeDetailedResponse;
 
 public record AuthenticationResponse(
     String token,
-    EmployeeResponse user
+    EmployeeDetailedResponse user
 ) {}
