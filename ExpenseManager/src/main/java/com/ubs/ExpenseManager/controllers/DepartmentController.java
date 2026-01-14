@@ -51,30 +51,6 @@ public class DepartmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(departmentUseCase.create(request));
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('FINANCE')")
-    @Operation(summary = "List departments", description = "Returns all registered departments")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Department list retrieved successfully")
-    })
-    public ResponseEntity<List<DepartmentResponse>> findAll() {
-        return ResponseEntity.ok(departmentUseCase.findAll());
-    }
-
-    @GetMapping("/{name}")
-    @PreAuthorize("hasRole('FINANCE')")
-    @Operation(
-        summary = "Get department by name",
-        description = "Returns a specific department by name"
-    )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Department found"),
-        @ApiResponse(responseCode = "404", description = "Department not found")
-    })
-    public ResponseEntity<DepartmentDetailedResponse> findByName(@PathVariable String name) {
-        return ResponseEntity.ok(departmentUseCase.findByName(name));
-    }
-
     @PutMapping("/{name}")
     @PreAuthorize("hasRole('FINANCE')")
     @Operation(
@@ -101,7 +77,7 @@ public class DepartmentController {
     }
 
     @PatchMapping("/{name}/name")
-    @PreAuthorize("hasRole('FINANCE')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
         summary = "Update department name",
         description = """
@@ -134,5 +110,29 @@ public class DepartmentController {
     public ResponseEntity<Void> delete(@PathVariable String name) {
         departmentUseCase.delete(name);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'FINANCE')")
+    @Operation(summary = "List departments", description = "Returns all registered departments")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Department list retrieved successfully")
+    })
+    public ResponseEntity<List<DepartmentResponse>> findAll() {
+        return ResponseEntity.ok(departmentUseCase.findAll());
+    }
+
+    @GetMapping("/{name}")
+    @PreAuthorize("hasRole('FINANCE')")
+    @Operation(
+        summary = "Get department by name",
+        description = "Returns a specific department by name"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Department found"),
+        @ApiResponse(responseCode = "404", description = "Department not found")
+    })
+    public ResponseEntity<DepartmentDetailedResponse> findByName(@PathVariable String name) {
+        return ResponseEntity.ok(departmentUseCase.findByName(name));
     }
 }
