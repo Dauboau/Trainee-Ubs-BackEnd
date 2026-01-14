@@ -11,8 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface AlertRepository extends JpaRepository<Alert, UUID> {
-    List<Alert> findByExpenseId(UUID expenseId);
+    boolean existsByExpenseId(UUID expenseId);
     List<Alert> findByStatus(AlertStatus status);
-    List<Alert> findByExpenseIdAndStatus(UUID expenseId, AlertStatus status);
-
 }

@@ -1,25 +1,17 @@
 package com.ubs.ExpenseManager.usecases.expense.dto;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.util.UUID;
-
-import org.springframework.web.multipart.MultipartFile;
-
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+
+import org.springframework.web.multipart.MultipartFile;
+
 public record ExpenseRequest(
-
-    @NotNull(message = "Employee ID is required")
-    UUID employeeId,
-
-    @NotBlank(message = "Department name is required")
-    String departmentName,
 
     String description,
 

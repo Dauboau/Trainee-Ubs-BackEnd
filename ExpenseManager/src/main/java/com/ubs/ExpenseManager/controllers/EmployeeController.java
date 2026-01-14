@@ -94,6 +94,7 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasRole('MANAGER')")
     @Operation(
         summary = "Activate employee",
         description = "Activates an inactive employee, allowing access to the system"
@@ -108,6 +109,7 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}/deactivate")
+    @PreAuthorize("hasRole('MANAGER')")
     @Operation(
         summary = "Deactivate employee",
         description = "Deactivates an employee, removing their access to the system"

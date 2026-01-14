@@ -1,15 +1,5 @@
 package com.ubs.ExpenseManager.usecases.expense;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
@@ -18,21 +8,36 @@ import com.drew.metadata.Tag;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
+import com.ubs.ExpenseManager.entities.alert.repository.AlertRepository;
 import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
+import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import com.ubs.ExpenseManager.exception.ConflictException;
 import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.gateways.CurrencyExchangeGateway;
 import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
+import com.ubs.ExpenseManager.security.auth.AuthenticatedUser;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
+import com.ubs.ExpenseManager.usecases.expense.states.ExpenseState;
+import com.ubs.ExpenseManager.usecases.expense.states.ExpenseStateFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,15 +47,17 @@ public class ExpenseUseCase {
     private final ExpenseRepository expenseRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final AlertRepository alertRepository;
     private final CurrencyExchangeGateway currencyExchangeGateway;
     private final ImageStorageGateway storageGateway;
     private final ExpenseProcessor expenseProcessor;
+    private final ExpenseStateFactory expenseStateFactory;
 
-    public ExpenseResponse create(ExpenseRequest request) {
-        Employee employee = employeeRepository.findById(request.employeeId())
+    public ExpenseResponse create(ExpenseRequest request, AuthenticatedUser user) {
+        Employee employee = employeeRepository.findById(user.id())
             .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
-        Department department = departmentRepository.findById(request.departmentName())
+        Department department = departmentRepository.findById(user.departmentId())
             .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
         Expense expense = new Expense();
@@ -94,17 +101,46 @@ public class ExpenseUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseResponse> findAll() {
-        return expenseRepository.findAll().stream()
+    public ExpenseDetailResponse findById(UUID id) {
+        Expense expense = expenseRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+        return ExpenseDetailResponse.fromEntity(expense);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findMyExpenses(UUID id) {
+        return expenseRepository.findAllByEmployeeId(id).stream()
             .map(ExpenseResponse::fromEntity)
             .toList();
     }
 
     @Transactional(readOnly = true)
-    public ExpenseDetailResponse findById(UUID id) {
-        Expense expense = expenseRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
-        return ExpenseDetailResponse.fromEntity(expense);
+    public List<ExpenseResponse> findPendingExpensesForManager(UUID id) {
+        return expenseRepository.findAllByEmployeeManagerIdAndManagerDecisionIsNull(id).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findPendingExpensesForFinance() {
+        return expenseRepository.findAllByManagerDecisionAndFinanceDecisionIsNull(
+            DecisionType.APPROVED).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findEmployeesExpensesForManager(UUID id) {
+        return expenseRepository.findAllByEmployeeManagerId(id).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findAllEmployeesExpenses() {
+        return expenseRepository.findAll().stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
     }
 
     /**
@@ -144,4 +180,27 @@ public class ExpenseUseCase {
         return value.replace("\u0000", "").trim();
     }
 
+    public void approve(UUID id, AuthenticatedUser user) {
+        Expense expense = expenseRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+
+        Employee employee = employeeRepository.findById(user.id())
+            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+
+        ExpenseState expenseState = expenseStateFactory.from(expense);
+        boolean hasPendingAlerts = alertRepository.existsByExpenseId(id);
+        expenseState.approve(expense, employee, hasPendingAlerts);
+    }
+
+
+    public void deny(UUID id, AuthenticatedUser user) {
+        Expense expense = expenseRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+
+        Employee employee = employeeRepository.findById(user.id())
+            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+
+        ExpenseState expenseState = expenseStateFactory.from(expense);
+        expenseState.reject(expense, employee);
+    }
 }
