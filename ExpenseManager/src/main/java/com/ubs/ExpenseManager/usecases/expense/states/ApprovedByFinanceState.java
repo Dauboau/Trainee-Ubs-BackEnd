@@ -13,7 +13,7 @@ public class ApprovedByFinanceState implements ExpenseState {
     }
 
     @Override
-    public void reject(Expense expense, Employee employee) {
+    public void deny(Expense expense, Employee employee) {
         throw new BusinessRuleException(
             "Expense already approved by finance and cannot be rejected");
     }

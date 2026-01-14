@@ -203,7 +203,7 @@ public class ExpenseUseCase {
             .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
         ExpenseState expenseState = expenseStateFactory.from(expense);
-        expenseState.reject(expense, employee);
+        expenseState.deny(expense, employee);
     }
 
     public List<ExpenseResponse> findApprovedExpenses(ExpenseReportFilterRequest request,

@@ -12,7 +12,7 @@ public class RejectedState implements ExpenseState {
     }
 
     @Override
-    public void reject(Expense expense, Employee employee) {
+    public void deny(Expense expense, Employee employee) {
         throw new BusinessRuleException("Expense has already been rejected");
     }
 }
