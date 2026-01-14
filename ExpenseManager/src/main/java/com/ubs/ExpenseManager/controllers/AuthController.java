@@ -1,27 +1,25 @@
 package com.ubs.ExpenseManager.controllers;
 
-import com.ubs.ExpenseManager.security.auth.AuthenticatedUser;
-import com.ubs.ExpenseManager.security.auth.AuthenticatedUserProvider;
-import com.ubs.ExpenseManager.usecases.auth.AuthUseCase;
-import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationRequest;
-import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationResponse;
-
-import com.ubs.ExpenseManager.usecases.auth.dto.NewPasswordRequest;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ubs.ExpenseManager.security.auth.AuthenticatedUser;
+import com.ubs.ExpenseManager.security.auth.AuthenticatedUserProvider;
+import com.ubs.ExpenseManager.usecases.auth.AuthUseCase;
+import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationRequest;
+import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationResponse;
+import com.ubs.ExpenseManager.usecases.auth.dto.NewPasswordRequest;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")

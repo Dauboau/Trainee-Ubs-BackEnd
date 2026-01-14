@@ -61,7 +61,11 @@ public class EmployeeController {
         @ApiResponse(responseCode = "409", description = "Email already in use"),
         @ApiResponse(
             responseCode = "422",
-            description = "Employee cannot be deactivated because they manage other employees"
+            description = """
+                Business rule violation. Possible reasons:
+                - No changes detected for employee update
+                - Employee cannot be deactivated because they manage other employees
+                """
         )
     })
     public ResponseEntity<EmployeeResponse> update(@PathVariable UUID id,
@@ -89,16 +93,6 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeUseCase.findAllManagers());
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get employee by ID", description = "Returns a specific employee by ID")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Employee found"),
-        @ApiResponse(responseCode = "404", description = "Employee not found")
-    })
-    public ResponseEntity<EmployeeResponse> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(employeeUseCase.findById(id));
-    }
-
     @PatchMapping("/{id}/activate")
     @Operation(
         summary = "Activate employee",
@@ -123,7 +117,11 @@ public class EmployeeController {
         @ApiResponse(responseCode = "404", description = "Employee not found"),
         @ApiResponse(
             responseCode = "422",
-            description = "Employee cannot be deactivated because they manage other employees"
+            description = """
+                Business rule violation. Possible reasons:
+                - No change detected for employee active status"
+                - Employee cannot be deactivated because they manage other employees
+                """
         )
     })
     public ResponseEntity<Void> deactivate(@PathVariable UUID id) {

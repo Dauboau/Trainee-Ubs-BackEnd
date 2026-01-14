@@ -44,6 +44,7 @@ public class ExpenseUseCase {
     private final DepartmentRepository departmentRepository;
     private final CurrencyExchangeGateway currencyExchangeGateway;
     private final ImageStorageGateway storageGateway;
+    private final ExpenseProcessor expenseProcessor;
 
     public ExpenseResponse create(ExpenseRequest request) {
         Employee employee = employeeRepository.findById(request.employeeId())
@@ -68,17 +69,24 @@ public class ExpenseUseCase {
             Metadata receiptImageMetadata = ImageMetadataReader.readMetadata(request.receiptImage().getInputStream());
             Map<String, Map<String, String>> receiptImageMetadataMap = getImageMetadataMap(receiptImageMetadata);
             expense.setReceiptMetadata(receiptImageMetadataMap);
-        } catch (ImageProcessingException | IOException e) { 
+        } catch (ImageProcessingException | IOException e) {
             // Ignore metadata extraction errors
         }
 
-        String fileName = String.format("receipts/%s", UuidCreator.getRandomBased());
-        String receiptUrl = storageGateway.uploadImage(request.receiptImage(), fileName);
-        expense.setReceiptUrl(receiptUrl);
+        boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
+                getInputArguments().toString().contains("-agentlib:jdwp");
+        if (!isDebug) {
+            String fileName = String.format("receipts/%s", UuidCreator.getRandomBased());
+            String receiptUrl = storageGateway.uploadImage(request.receiptImage(), fileName);
+            expense.setReceiptUrl(receiptUrl);
+        } else {
+            expense.setReceiptUrl("receiptUrl.dev");
+        }
 
         try {
             Expense savedExpense = expenseRepository.save(expense);
             expenseRepository.flush();
+            expenseProcessor.process(savedExpense);
             return ExpenseResponse.fromEntity(savedExpense);
         } catch (DataIntegrityViolationException ex) {
             throw new ConflictException("Expense already exists");
@@ -109,16 +117,16 @@ public class ExpenseUseCase {
 
         for (Directory directory : imageMetadata.getDirectories()) {
             Map<String, String> tagsMap = new HashMap<>();
-            
+
             for (Tag tag : directory.getTags()) {
                 String tagName = sanitize(tag.getTagName());
                 String description = sanitize(tag.getDescription());
-                
+
                 if (tagName != null) {
                     tagsMap.put(tagName, description);
                 }
             }
-            
+
             if (!tagsMap.isEmpty()) {
                 cleanedMetadata.put(sanitize(directory.getName()), tagsMap);
             }
