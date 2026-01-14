@@ -14,6 +14,7 @@ import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepositor
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
+import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import com.ubs.ExpenseManager.exception.ConflictException;
 import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
@@ -52,11 +53,11 @@ public class ExpenseUseCase {
     private final ExpenseProcessor expenseProcessor;
     private final ExpenseStateFactory expenseStateFactory;
 
-    public ExpenseResponse create(ExpenseRequest request) {
-        Employee employee = employeeRepository.findById(request.employeeId())
+    public ExpenseResponse create(ExpenseRequest request, AuthenticatedUser user) {
+        Employee employee = employeeRepository.findById(user.id())
             .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
-        Department department = departmentRepository.findById(request.departmentName())
+        Department department = departmentRepository.findById(user.departmentId())
             .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
         Expense expense = new Expense();
@@ -100,17 +101,46 @@ public class ExpenseUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseResponse> findAll() {
-        return expenseRepository.findAll().stream()
+    public ExpenseDetailResponse findById(UUID id) {
+        Expense expense = expenseRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+        return ExpenseDetailResponse.fromEntity(expense);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findMyExpenses(UUID id) {
+        return expenseRepository.findAllByEmployeeId(id).stream()
             .map(ExpenseResponse::fromEntity)
             .toList();
     }
 
     @Transactional(readOnly = true)
-    public ExpenseDetailResponse findById(UUID id) {
-        Expense expense = expenseRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
-        return ExpenseDetailResponse.fromEntity(expense);
+    public List<ExpenseResponse> findPendingExpensesForManager(UUID id) {
+        return expenseRepository.findAllByEmployeeManagerIdAndManagerDecisionIsNull(id).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findPendingExpensesForFinance() {
+        return expenseRepository.findAllByManagerDecisionAndFinanceDecisionIsNull(
+            DecisionType.APPROVED).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findEmployeesExpensesForManager(UUID id) {
+        return expenseRepository.findAllByManagerId(id).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> findAllEmployeesExpenses() {
+        return expenseRepository.findAll().stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
     }
 
     /**
