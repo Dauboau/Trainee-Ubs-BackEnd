@@ -22,7 +22,7 @@ public class PendingState implements ExpenseState {
 
         expense.setManagerDecisionDate(OffsetDateTime.now());
         expense.setManagerDecision(DecisionType.APPROVED);
-        expenseProcessor.process(savedExpense);
+        expenseProcessor.process(expense);
         expense.setManager(employee);
     }
 
