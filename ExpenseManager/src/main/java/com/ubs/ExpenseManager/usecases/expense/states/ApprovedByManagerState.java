@@ -25,9 +25,9 @@ public class ApprovedByManagerState implements ExpenseState {
     }
 
     @Override
-    public void reject(Expense expense, Employee employee) {
+    public void deny(Expense expense, Employee employee) {
         if (employee.getRole() != Role.FINANCE) {
-            throw new UnauthorizedException("Only finance can deny this expense");
+            throw new UnauthorizedException("Only finance can reject this expense");
         }
         expense.setFinanceDecisionDate(OffsetDateTime.now());
         expense.setFinanceDecision(DecisionType.REJECTED);

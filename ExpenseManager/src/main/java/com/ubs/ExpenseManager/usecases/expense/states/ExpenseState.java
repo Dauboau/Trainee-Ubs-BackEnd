@@ -5,5 +5,5 @@ import com.ubs.ExpenseManager.entities.expense.Expense;
 
 public interface ExpenseState {
     void approve(Expense expense, Employee employee, boolean hasActiveAlerts);
-    void reject(Expense expense, Employee employee);
+    void deny(Expense expense, Employee employee);
 }
