@@ -2,7 +2,6 @@ package com.ubs.ExpenseManager.security.config;
 
 import com.ubs.ExpenseManager.security.filter.JwtAuthenticationFilter;
 import com.ubs.ExpenseManager.security.filter.RequestLoggingFilter;
-
 import com.ubs.ExpenseManager.security.handler.RestAccessDeniedHandler;
 import com.ubs.ExpenseManager.security.handler.RestAuthenticationEntryPoint;
 

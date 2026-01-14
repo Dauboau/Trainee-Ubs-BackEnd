@@ -12,8 +12,6 @@ import java.util.List;
 @Repository
 public interface SpendingSettingRepository extends
     JpaRepository<SpendingSetting, SpendingSettingId> {
-
     void deleteAllByDepartment_Name(String departmentName);
-
     List<SpendingSetting> findByIdDepartmentNameAndIdCategory(String department, ExpenseCategory category);
 }

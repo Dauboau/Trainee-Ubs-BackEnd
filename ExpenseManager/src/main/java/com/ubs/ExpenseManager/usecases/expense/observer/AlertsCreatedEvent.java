@@ -5,7 +5,6 @@ import com.ubs.ExpenseManager.entities.alert.Alert;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class AlertsCreatedEvent {
     private final List<Alert> alerts;
 

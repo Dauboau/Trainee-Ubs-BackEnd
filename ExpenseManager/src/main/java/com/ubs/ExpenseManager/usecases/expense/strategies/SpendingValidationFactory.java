@@ -1,12 +1,13 @@
 package com.ubs.ExpenseManager.usecases.expense.strategies;
 
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SpendingValidationFactory {

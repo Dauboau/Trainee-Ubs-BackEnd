@@ -6,6 +6,7 @@ import com.ubs.ExpenseManager.entities.department.SpendingSetting;
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.usecases.expense.observer.AlertsCreatedEvent;
+
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

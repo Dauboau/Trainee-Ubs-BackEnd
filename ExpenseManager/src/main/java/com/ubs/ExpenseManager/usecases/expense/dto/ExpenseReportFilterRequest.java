@@ -1,7 +1,9 @@
 package com.ubs.ExpenseManager.usecases.expense.dto;
 
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
+
 import jakarta.validation.constraints.NotNull;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;

@@ -1,6 +1,7 @@
 package com.ubs.ExpenseManager.gateways;
 
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
+
 import java.math.BigDecimal;
 
 public interface CurrencyExchangeGateway {
