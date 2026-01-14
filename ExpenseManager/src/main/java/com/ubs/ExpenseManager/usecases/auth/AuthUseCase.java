@@ -1,5 +1,12 @@
 package com.ubs.ExpenseManager.usecases.auth;
 
+import java.util.UUID;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.exception.BusinessRuleException;
@@ -11,14 +18,8 @@ import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationRequest;
 import com.ubs.ExpenseManager.usecases.auth.dto.AuthenticationResponse;
 import com.ubs.ExpenseManager.usecases.auth.dto.NewPasswordRequest;
 import com.ubs.ExpenseManager.usecases.employee.dto.EmployeeDetailedResponse;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
