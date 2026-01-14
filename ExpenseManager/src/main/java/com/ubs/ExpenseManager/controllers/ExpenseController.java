@@ -2,24 +2,10 @@ package com.ubs.ExpenseManager.controllers;
 
 import com.ubs.ExpenseManager.security.auth.AuthenticatedUser;
 import com.ubs.ExpenseManager.security.auth.AuthenticatedUserProvider;
-
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ubs.ExpenseManager.usecases.expense.ExpenseUseCase;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
+import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseReportFilterRequest;
+import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseReportType;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
 
@@ -30,7 +16,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 
+import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -181,5 +183,83 @@ public class ExpenseController {
         AuthenticatedUser user = authenticatedUserProvider.getUser();
         expenseUseCase.deny(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/reports/by-employee")
+    @PreAuthorize("hasRole('FINANCE')")
+    @Operation(
+        summary = "Generate expense report by employee",
+        description = "Generates a report containing all expenses approved by finance for the "
+            + "specified employees within a given date range. This endpoint requires at least one "
+            + "employee ID and a valid date interval. "
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Expense report generated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(
+            responseCode = "422",
+            description = """
+                Business rule violation. Possible reasons:
+                - Employee ID list is missing or empty
+                - dateFrom is after dateTo
+            """
+        ),
+    })
+    public ResponseEntity<List<ExpenseResponse>> findByEmployees(
+        @Valid @RequestBody ExpenseReportFilterRequest request) {
+        return ResponseEntity.ok(expenseUseCase.findApprovedExpenses(request,
+            ExpenseReportType.BY_EMPLOYEE));
+    }
+
+    @GetMapping("/reports/by-category")
+    @PreAuthorize("hasRole('FINANCE')")
+    @Operation(
+        summary = "Generate expense report by category",
+        description = "Generates a report containing all expenses approved by finance for the "
+            + "specified expense categories within a given date range. This endpoint requires at "
+            + "least one expense category and a valid date interval. "
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Expense report generated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(
+            responseCode = "422",
+            description = """
+                Business rule violation. Possible reasons:
+                - Expense category list is missing or empty
+                - dateFrom is after dateTo
+            """
+        )
+    })
+    public ResponseEntity<List<ExpenseResponse>> findByCategories(
+        @Valid @RequestBody ExpenseReportFilterRequest request) {
+        return ResponseEntity.ok(expenseUseCase.findApprovedExpenses(request,
+            ExpenseReportType.BY_CATEGORY));
+    }
+
+    @GetMapping("/reports/by-department")
+    @PreAuthorize("hasRole('FINANCE')")
+    @Operation(
+        summary = "Generate expense report by department",
+        description = "Generates a report containing all expenses approved by finance for the "
+            + "specified departments within a given date range. This endpoint requires at least one "
+            + "department and a valid date interval. "
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Expense report generated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload"),
+        @ApiResponse(
+            responseCode = "422",
+            description = """
+                Business rule violation. Possible reasons:
+                - Department list is missing or empty
+                - dateFrom is after dateTo
+            """
+        )
+    })
+    public ResponseEntity<List<ExpenseResponse>> findByDepartments(
+        @Valid @RequestBody ExpenseReportFilterRequest request) {
+        return ResponseEntity.ok(expenseUseCase.findApprovedExpenses(request,
+            ExpenseReportType.BY_DEPARTMENT));
     }
 }
