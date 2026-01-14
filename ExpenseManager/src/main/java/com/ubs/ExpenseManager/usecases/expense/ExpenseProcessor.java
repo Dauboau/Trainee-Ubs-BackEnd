@@ -10,12 +10,14 @@ import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
 import com.ubs.ExpenseManager.usecases.expense.observer.AlertsCreatedEvent;
 import com.ubs.ExpenseManager.usecases.expense.strategies.SpendingValidationFactory;
 import com.ubs.ExpenseManager.usecases.expense.strategies.SpendingValidationStrategy;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

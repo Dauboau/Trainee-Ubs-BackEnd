@@ -1,18 +1,21 @@
 package com.ubs.ExpenseManager.gateways.adapters;
 
+import com.google.cloud.storage.Bucket;
+
+import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.nio.JpegWriter;
+
+import com.ubs.ExpenseManager.exception.ApiException;
+import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
+
 import java.io.IOException;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.google.cloud.storage.Bucket;
-import com.sksamuel.scrimage.ImmutableImage;
-import com.sksamuel.scrimage.nio.JpegWriter;
-import com.ubs.ExpenseManager.exception.ApiException;
-import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
-
-import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

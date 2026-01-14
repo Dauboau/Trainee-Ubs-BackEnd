@@ -3,6 +3,7 @@ package com.ubs.ExpenseManager.usecases.department.dto;
 import com.ubs.ExpenseManager.entities.department.SpendingSetting;
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
+
 import java.math.BigDecimal;
 
 public record SpendingSettingResponse(

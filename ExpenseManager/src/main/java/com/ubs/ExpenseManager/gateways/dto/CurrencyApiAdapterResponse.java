@@ -1,10 +1,11 @@
 package com.ubs.ExpenseManager.gateways.dto;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
 import java.math.BigDecimal;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 import lombok.Data;
 

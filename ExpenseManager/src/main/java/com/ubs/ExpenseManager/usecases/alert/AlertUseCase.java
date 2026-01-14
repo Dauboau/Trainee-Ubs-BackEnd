@@ -10,13 +10,13 @@ import com.ubs.ExpenseManager.exception.ConflictException;
 import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.usecases.alert.dto.AlertResponse;
 
+import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

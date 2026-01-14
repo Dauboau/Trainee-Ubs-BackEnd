@@ -1,10 +1,9 @@
 package com.ubs.ExpenseManager.usecases.employee.dto;
 
-import java.util.UUID;
-
 import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.employee.enums.Role;
 
+import java.util.UUID;
 
 public record EmployeeDetailedResponse(
     UUID id,
