@@ -40,11 +40,11 @@ public class DailyValidationStrategy implements SpendingValidationStrategy {
             // If the single item is too big (exceedsLimit), that is the primary error.
             String message = exceedsLimit
                     ? String.format(
-                    "Daily Limit Exceeded: The requested amount (%s) is greater than the total daily allowance of %s set for '%s'.",
-                    expense.getAmount(), setting.getBudget(), expense.getCategory())
+                    "Daily Limit Exceeded: The requested amount (%s %s) is greater than the total daily allowance of %s %s set for '%s'.",
+                    expense.getAmount(), expense.getCurrency(), setting.getBudget(), expense.getDepartment().getCurrency(), expense.getCategory())
                     : String.format(
-                    "Daily Budget Exhausted: This expense of %s would exceed your remaining budget for today. Remaining: %s. Category: %s.",
-                    expense.getAmount(), remainingDailyBudget, expense.getCategory());
+                    "Daily Budget Exhausted: This expense of %s %s would exceed your remaining budget for today. Remaining: %s %s. Category: %s.",
+                    expense.getAmount(), expense.getCurrency(), remainingDailyBudget, expense.getDepartment().getCurrency(), expense.getCategory());
 
             // Create exactly ONE alert of type CATEGORY_DAILY
             Alert alert = new Alert(
