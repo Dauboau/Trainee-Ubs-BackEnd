@@ -20,6 +20,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
     );
     List<Expense> findAllByEmployeeId(UUID employeeId);
     List<Expense> findAllByManagerDecisionAndFinanceDecisionIsNull(DecisionType managerDecision);
-    List<Expense> findAllByManagerId(UUID managerId);
+    List<Expense> findAllByEmployeeManagerId(UUID managerId);
     List<Expense> findAllByEmployeeManagerIdAndManagerDecisionIsNull(UUID managerId);
 }

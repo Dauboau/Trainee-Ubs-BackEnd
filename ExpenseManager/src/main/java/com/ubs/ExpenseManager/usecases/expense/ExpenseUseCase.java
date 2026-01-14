@@ -131,7 +131,7 @@ public class ExpenseUseCase {
 
     @Transactional(readOnly = true)
     public List<ExpenseResponse> findEmployeesExpensesForManager(UUID id) {
-        return expenseRepository.findAllByManagerId(id).stream()
+        return expenseRepository.findAllByEmployeeManagerId(id).stream()
             .map(ExpenseResponse::fromEntity)
             .toList();
     }

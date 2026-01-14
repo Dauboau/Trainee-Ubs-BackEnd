@@ -12,9 +12,11 @@ public class PendingState implements ExpenseState {
 
     @Override
     public void approve(Expense expense, Employee employee, boolean hasActiveAlerts) {
-        if (employee.getRole() != Role.MANAGER) {
-            throw new UnauthorizedException("Only manager can approve this expense");
+        Employee directManager = expense.getEmployee().getManager();
+        if (directManager == null || !directManager.getId().equals(employee.getId())) {
+            throw new UnauthorizedException("Only the direct manager can approve this expense");
         }
+
         expense.setManagerDecisionDate(OffsetDateTime.now());
         expense.setManagerDecision(DecisionType.APPROVED);
         expense.setManager(employee);
