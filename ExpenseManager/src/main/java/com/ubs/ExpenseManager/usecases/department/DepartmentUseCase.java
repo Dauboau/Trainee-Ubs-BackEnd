@@ -152,9 +152,15 @@ public class DepartmentUseCase {
     }
 
     public void delete(String name) {
-        int deleted = departmentRepository.deleteByName(name);
-        if (deleted == 0) {
-            throw new ResourceNotFoundException("Department not found");
+        try {
+            int deleted = departmentRepository.deleteByName(name);
+            if (deleted == 0) {
+                throw new ResourceNotFoundException("Department not found");
+            }
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessRuleException(
+                "Department cannot be deleted because it still has employees"
+            );
         }
     }
 }
