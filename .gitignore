@@ -41,3 +41,7 @@ report.json
 *.key
 ExpenseManager/.env
 ExpenseManager/serviceAccountKey.json
+
+# windows
+/.env
+/.idea/
