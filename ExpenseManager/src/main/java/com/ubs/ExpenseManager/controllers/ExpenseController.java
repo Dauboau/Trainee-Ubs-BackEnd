@@ -135,51 +135,103 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseUseCase.findById(id));
     }
 
-    @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasAnyRole('MANAGER', 'FINANCE')")
+    @PatchMapping("/{id}/approve/manager")
+    @PreAuthorize("hasRole('MANAGER')")
     @Operation(
-        summary = "Approve expense",
-        description = """
-            Approves an expense according to the current workflow state. Managers approve pending
-            expenses from their subordinates, and finance approves expenses previously approved
-            by managers.
-       """
+        summary = "Approve expense (manager)",
+        description = "Approves a pending expense submitted by an employee under "
+            + "the authenticated manager"
     )
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Expense approved successfully"),
+        @ApiResponse(
+            responseCode = "204",
+            description = "Expense approved successfully by manager"
+        ),
         @ApiResponse(responseCode = "404", description = "Expense not found"),
         @ApiResponse(
             responseCode = "422",
-            description = "Business rule violation. The expense cannot be approved in its "
-                + "current state"
+            description = """
+                Business rule violation. Possible reasons:
+                - The expense is not in PENDING status
+                - The expense does not belong to the manager's department
+            """
         )
     })
-    public ResponseEntity<Void> approve(@PathVariable UUID id) {
+    public ResponseEntity<Void> approveByManager(@PathVariable UUID id) {
         AuthenticatedUser user = authenticatedUserProvider.getUser();
         expenseUseCase.approve(id, user);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/deny")
-    @PreAuthorize("hasAnyRole('MANAGER', 'FINANCE')")
+    @PatchMapping("/{id}/approve/finance")
+    @PreAuthorize("hasRole('FINANCE')")
     @Operation(
-        summary = "Deny expense",
-        description = """
-            Denies an expense according to the current workflow state. Managers deny pending
-            expenses from their subordinates, and finance denies expenses previously approved
-            by managers.
-        """
+        summary = "Approve expense (finance)",
+        description = "Approves an expense previously approved by a manager"
     )
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Expense denied successfully"),
+        @ApiResponse(
+            responseCode = "204",
+            description = "Expense approved successfully by finance"
+        ),
         @ApiResponse(responseCode = "404", description = "Expense not found"),
         @ApiResponse(
             responseCode = "422",
-            description = "Business rule violation. The expense cannot be denied in its "
-                + "current state"
+            description = """
+            Business rule violation. Possible reasons:
+            - The expense is not in APPROVED_BY_MANAGER status
+        """
         )
     })
-    public ResponseEntity<Void> deny(@PathVariable UUID id) {
+    public ResponseEntity<Void> approveByFinance(@PathVariable UUID id) {
+        AuthenticatedUser user = authenticatedUserProvider.getUser();
+        expenseUseCase.approve(id, user);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/deny/manager")
+    @PreAuthorize("hasRole('MANAGER')")
+    @Operation(
+        summary = "Deny expense (manager)",
+        description = "Denies a pending expense submitted by an employee under the"
+            + " authenticated manager"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Expense denied successfully by manager"),
+        @ApiResponse(responseCode = "404", description = "Expense not found"),
+        @ApiResponse(
+            responseCode = "422",
+            description = """
+                Business rule violation. Possible reasons:
+                - The expense is not in PENDING status
+                - The expense does not belong to the manager's department
+            """
+        )
+    })
+    public ResponseEntity<Void> denyByManager(@PathVariable UUID id) {
+        AuthenticatedUser user = authenticatedUserProvider.getUser();
+        expenseUseCase.deny(id, user);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/deny/finance")
+    @PreAuthorize("hasRole('FINANCE')")
+    @Operation(
+        summary = "Deny expense (finance)",
+        description = "Denies an expense previously approved by a manager"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Expense denied successfully by finance"),
+        @ApiResponse(responseCode = "404", description = "Expense not found"),
+        @ApiResponse(
+            responseCode = "422",
+                description = """
+                Business rule violation. Possible reasons:
+                - The expense is not in APPROVED_BY_MANAGER status
+            """
+        )
+    })
+    public ResponseEntity<Void> denyByFinance(@PathVariable UUID id) {
         AuthenticatedUser user = authenticatedUserProvider.getUser();
         expenseUseCase.deny(id, user);
         return ResponseEntity.noContent().build();
