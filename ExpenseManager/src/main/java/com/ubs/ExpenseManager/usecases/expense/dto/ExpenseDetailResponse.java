@@ -24,8 +24,8 @@ public record ExpenseDetailResponse(
     BigDecimal exchangeRate,
     String description,
     String receiptUrl,
-    ManagerDecisionInfo managerDecision,
-    FinanceDecisionInfo financeDecision,
+    ManagerDetailedDecisionInfo managerDecision,
+    FinanceDetailedDecisionInfo financeDecision,
     Boolean revision,
     Instant createdAt,
     Instant updatedAt,
@@ -43,12 +43,12 @@ public record ExpenseDetailResponse(
             expense.getExchangeRate(),
             expense.getDescription(),
             expense.getReceiptUrl(),
-            expense.getManager() != null ? new ManagerDecisionInfo(
+            expense.getManager() != null ? new ManagerDetailedDecisionInfo(
                 EmployeeInfo.fromEntity(expense.getManager()),
                 expense.getManagerDecision(),
                 expense.getManagerDecisionDate()
             ) : null,
-            expense.getFinance() != null ? new FinanceDecisionInfo(
+            expense.getFinance() != null ? new FinanceDetailedDecisionInfo(
                 EmployeeInfo.fromEntity(expense.getFinance()),
                 expense.getFinanceDecision(),
                 expense.getFinanceDecisionDate()
@@ -76,13 +76,13 @@ public record ExpenseDetailResponse(
         }
     }
 
-    public record ManagerDecisionInfo(
+    public record ManagerDetailedDecisionInfo(
         EmployeeInfo manager,
         DecisionType decision,
         OffsetDateTime decisionDate
     ) {}
 
-    public record FinanceDecisionInfo(
+    public record FinanceDetailedDecisionInfo(
         EmployeeInfo finance,
         DecisionType decision,
         OffsetDateTime decisionDate
