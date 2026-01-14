@@ -13,7 +13,6 @@ import com.ubs.ExpenseManager.usecases.expense.strategies.SpendingValidationStra
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -96,11 +95,12 @@ public class ExpenseProcessor {
         if (remainingDepartmentBudget.compareTo(amountConverted) < 0) {
             String message = String.format(
                     "Departmental Budget Overrun: The requested amount (%s %s) exceeds the total remaining " +
-                            "monthly budget for the %s department. Available funds: %s.",
+                            "monthly budget for the %s department. Available funds: %s %s.",
                     expense.getAmount(),
                     expense.getCurrency(),
                     expense.getDepartment().getName(),
-                    remainingDepartmentBudget
+                    remainingDepartmentBudget,
+                    expense.getDepartment().getCurrency()
             );
             Alert alert = new Alert(
                     expense,

@@ -18,6 +18,7 @@ import com.ubs.ExpenseManager.usecases.expense.strategies.MonthlyValidationStrat
 import com.ubs.ExpenseManager.usecases.expense.strategies.SpendingValidationFactory;
 import com.google.firebase.FirebaseApp;
 import org.junit.jupiter.api.BeforeEach;
+import com.google.cloud.storage.Bucket;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,10 @@ class ExpenseValidationIntegrationTest {
 
         // Mock Firebase credentials for tests (empty base64 string)
         registry.add("FIREBASE_CREDENTIALS_BASE64", () -> "e30="); // Base64 encoded "{}"
+        registry.add("FIREBASE_BUCKET", () -> "test-bucket");
+        registry.add("JWT_SECRET", () -> "dGVzdC1zZWNyZXQtdGVzdC1zZWNyZXQtdGVzdC1zZWNyZXQtdGVzdC1zZWNyZXQ=");
+        registry.add("JWT_EXPIRATION_TIME", () -> "3600000");
+        registry.add("FIREBASE_BUCKET_ENV", () -> "test");
     }
 
     @Autowired
@@ -83,6 +88,9 @@ class ExpenseValidationIntegrationTest {
 
     @MockitoBean
     private FirebaseApp firebaseApp; // Mock Firebase to avoid initialization issues
+
+    @MockitoBean
+    private Bucket bucket;
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;

@@ -38,13 +38,13 @@ public class MonthlyValidationStrategy implements SpendingValidationStrategy {
         if (exceedsIndividual || exceedsProjected) {
             StringBuilder message = new StringBuilder();
             message.append(exceedsIndividual? String.format(
-                    "Policy Violation: Individual expense (%s) exceeds the total monthly category limit of %s. ",
-                    expense.getAmount(), setting.getBudget()):"");
+                    "Policy Violation: Individual expense (%s %s) exceeds the total monthly category limit of %s %s. ",
+                    expense.getAmount(), expense.getCurrency(), setting.getBudget(), expense.getDepartment().getCurrency()):"");
             message.append(exceedsProjected? String.format(
                     "Budget Alert: This expense of %s %s exceeds the remaining monthly budget for '%s'. " +
-                            "Available: %s. Total spent this month: %s.",
+                            "Available: %s %s. Total spent this month: %s %s.",
                     expense.getAmount(), expense.getCurrency(), expense.getCategory(),
-                    remainingMonthlyBudget, totalSpentInCategory):"");
+                    remainingMonthlyBudget, expense.getDepartment().getCurrency(), totalSpentInCategory, expense.getDepartment().getCurrency()):"");
 
             Alert alert = new Alert(
                     expense,
