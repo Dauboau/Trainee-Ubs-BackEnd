@@ -52,6 +52,13 @@ public class EmployeeUseCase {
         }
     }
 
+    @Transactional(readOnly = true)
+    public EmployeeResponse findById(UUID id) {
+        return employeeRepository.findById(id)
+            .map(EmployeeResponse::fromEntity)
+            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+    }
+
     public EmployeeResponse update(UUID id, UpdateEmployeeRequest request) {
         Employee employee = employeeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));

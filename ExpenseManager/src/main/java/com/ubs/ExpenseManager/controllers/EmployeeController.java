@@ -52,6 +52,26 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeUseCase.create(request));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get employee by ID", description = "Returns a specific employee by ID")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Employee found"),
+        @ApiResponse(responseCode = "404", description = "Employee not found")
+    })
+    public ResponseEntity<EmployeeResponse> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(employeeUseCase.findById(id));
+    }
+
+    @GetMapping
+    @Operation(
+        summary = "List employees",
+        description = "Returns a list of all active registered employees"
+    )
+    @ApiResponse(responseCode = "200", description = "Employee list retrieved successfully")
+    public ResponseEntity<List<EmployeeResponse>> findAll() {
+        return ResponseEntity.ok(employeeUseCase.findAll());
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Update employee", description = "Updates an existing employee")
     @ApiResponses({
@@ -71,26 +91,6 @@ public class EmployeeController {
     public ResponseEntity<EmployeeResponse> update(@PathVariable UUID id,
         @Valid @RequestBody UpdateEmployeeRequest request) {
         return ResponseEntity.ok(employeeUseCase.update(id, request));
-    }
-
-    @GetMapping
-    @Operation(
-        summary = "List employees",
-        description = "Returns a list of all active registered employees"
-    )
-    @ApiResponse(responseCode = "200", description = "Employee list retrieved successfully")
-    public ResponseEntity<List<EmployeeResponse>> findAll() {
-        return ResponseEntity.ok(employeeUseCase.findAll());
-    }
-
-    @GetMapping("/managers")
-    @Operation(
-        summary = "List managers",
-        description = "Returns a list of all active registered managers"
-    )
-    @ApiResponse(responseCode = "200", description = "Manager list retrieved successfully")
-    public ResponseEntity<List<EmployeeResponse>> findAllManagers() {
-        return ResponseEntity.ok(employeeUseCase.findAllManagers());
     }
 
     @PatchMapping("/{id}/activate")
@@ -129,5 +129,15 @@ public class EmployeeController {
     public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
         employeeUseCase.changeActiveStatus(id, false);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/managers")
+    @Operation(
+        summary = "List managers",
+        description = "Returns a list of all active registered managers"
+    )
+    @ApiResponse(responseCode = "200", description = "Manager list retrieved successfully")
+    public ResponseEntity<List<EmployeeResponse>> findAllManagers() {
+        return ResponseEntity.ok(employeeUseCase.findAllManagers());
     }
 }

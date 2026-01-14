@@ -237,7 +237,7 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/reports/by-employee")
+    @PostMapping("/reports/by-employee")
     @PreAuthorize("hasRole('FINANCE')")
     @Operation(
         summary = "Generate expense report by employee",
@@ -263,7 +263,7 @@ public class ExpenseController {
             ExpenseReportType.BY_EMPLOYEE));
     }
 
-    @GetMapping("/reports/by-category")
+    @PostMapping("/reports/by-category")
     @PreAuthorize("hasRole('FINANCE')")
     @Operation(
         summary = "Generate expense report by category",
@@ -289,7 +289,7 @@ public class ExpenseController {
             ExpenseReportType.BY_CATEGORY));
     }
 
-    @GetMapping("/reports/by-department")
+    @PostMapping("/reports/by-department")
     @PreAuthorize("hasRole('FINANCE')")
     @Operation(
         summary = "Generate expense report by department",
