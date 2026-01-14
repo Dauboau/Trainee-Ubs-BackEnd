@@ -1,15 +1,20 @@
 package com.ubs.ExpenseManager.usecases.department;
 
 import com.ubs.ExpenseManager.entities.department.Department;
+import com.ubs.ExpenseManager.entities.department.SpendingSetting;
 import com.ubs.ExpenseManager.entities.department.repository.DepartmentRepository;
 import com.ubs.ExpenseManager.exception.ConflictException;
 import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.usecases.department.dto.CreateDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.DepartmentDetailedResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.DepartmentResponse;
 import com.ubs.ExpenseManager.usecases.department.dto.RenameDepartmentRequest;
+import com.ubs.ExpenseManager.usecases.department.dto.SpendingSettingRequest;
 import com.ubs.ExpenseManager.usecases.department.dto.UpdateDepartmentRequest;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,18 +44,48 @@ public class DepartmentUseCase {
     }
 
     @Transactional(readOnly = true)
-    public DepartmentResponse findById(String name) {
-        return DepartmentResponse.fromEntity(departmentRepository.findById(name)
+    public DepartmentDetailedResponse findByName(String name) {
+        return DepartmentDetailedResponse.fromEntity(departmentRepository.findById(name)
             .orElseThrow(() -> new ResourceNotFoundException("Department not found")));
     }
 
-    public DepartmentResponse update(String name, UpdateDepartmentRequest request) {
+    public DepartmentDetailedResponse update(String name, UpdateDepartmentRequest request) {
         Department department = departmentRepository.findById(name)
             .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+
+        validateSpendingSettings(request.spendingSettings());
+
         department.setCurrency(request.currency());
         department.setMonthlyBudget(request.monthlyBudget());
+        department.getSpendingSettings().clear();
 
-        return DepartmentResponse.fromEntity(departmentRepository.save(department));
+        if (request.spendingSettings() != null) {
+            for (SpendingSettingRequest settingRequest : request.spendingSettings()) {
+                SpendingSetting setting = new SpendingSetting(
+                    settingRequest.toId(department.getName()),
+                    settingRequest.budget()
+                );
+                setting.setDepartment(department);
+                department.getSpendingSettings().add(setting);
+            }
+        }
+        return DepartmentDetailedResponse.fromEntity(departmentRepository.save(department));
+    }
+
+    private void validateSpendingSettings(List<SpendingSettingRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            return;
+        }
+
+        Set<String> setting = new HashSet<>();
+        for (SpendingSettingRequest request : requests) {
+            String key = request.category() + ":" + request.type();
+            if (!setting.add(key)) {
+                throw new ConflictException(
+                    "There cannot be more than one spending setting with the same category and type"
+                );
+            }
+        }
     }
 
     public void rename(String name, RenameDepartmentRequest request) {
@@ -62,7 +97,7 @@ public class DepartmentUseCase {
             if (updated == 0) {
                 throw new ResourceNotFoundException("Department not found");
             }
-        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+        } catch (DataIntegrityViolationException ex) {
             throw new ConflictException("A department with this name already exists");
         }
     }

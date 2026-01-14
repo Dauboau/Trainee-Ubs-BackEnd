@@ -13,10 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Optional<Employee> findByEmail(String email);
-    List<Employee> findAllByActiveTrue();
-    Optional<Employee> findByIdAndActiveTrue(UUID id);
-    Optional<Employee> findByIdAndRoleAndActiveTrue(UUID id, Role role);
+    Optional<Employee> findByIdAndRole(UUID id, Role role);
     boolean existsByManagerId(UUID managerId);
-    List<Employee> findAllByManagerId(UUID managerId);
-    List<Employee> findAllByActiveTrueAndRole(Role role);
+    List<Employee> findAllByRole(Role role);
 }

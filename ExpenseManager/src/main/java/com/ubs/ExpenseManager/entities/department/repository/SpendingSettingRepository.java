@@ -2,13 +2,11 @@ package com.ubs.ExpenseManager.entities.department.repository;
 
 import com.ubs.ExpenseManager.entities.department.SpendingSetting;
 import com.ubs.ExpenseManager.entities.department.SpendingSettingId;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface SpendingSettingRepository extends JpaRepository<SpendingSetting, SpendingSettingId> {
-    
-    List<SpendingSetting> findByIdDepartmentName(String departmentName);
+public interface SpendingSettingRepository extends
+    JpaRepository<SpendingSetting, SpendingSettingId> {
 }

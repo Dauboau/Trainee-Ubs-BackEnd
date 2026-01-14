@@ -95,4 +95,17 @@ public class Employee implements UserDetails {
     public String getUsername() {
         return this.email;
     }
+
+    public Employee(UUID id, String email, String name, Employee manager, String password, Role role, Department department, String position, Boolean active, Boolean firstTime) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.manager = manager;
+        this.password = password;
+        this.role = role;
+        this.department = department;
+        this.position = position;
+        this.active = active;
+        this.firstTime = firstTime;
+    }
 }

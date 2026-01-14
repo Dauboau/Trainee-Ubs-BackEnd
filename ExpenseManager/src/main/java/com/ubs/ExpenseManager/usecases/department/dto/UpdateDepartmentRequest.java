@@ -2,10 +2,12 @@ package com.ubs.ExpenseManager.usecases.department.dto;
 
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record UpdateDepartmentRequest(
 
@@ -14,5 +16,8 @@ public record UpdateDepartmentRequest(
 
     @NotNull(message = "Monthly budget is required")
     @Positive(message = "Monthly budget must be a positive value")
-    BigDecimal monthlyBudget
+    BigDecimal monthlyBudget,
+
+    @Valid
+    List<SpendingSettingRequest> spendingSettings
 ) {}
