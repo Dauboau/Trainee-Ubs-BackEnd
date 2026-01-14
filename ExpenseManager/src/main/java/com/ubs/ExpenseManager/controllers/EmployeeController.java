@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/employees")
+@PreAuthorize("hasRole('ADMIN')")
 @ApiResponses({
     @ApiResponse(responseCode = "401", description = "Authentication required"),
     @ApiResponse(responseCode = "403", description = "Access denied")
@@ -52,16 +52,6 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeUseCase.create(request));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get employee by ID", description = "Returns a specific employee by ID")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Employee found"),
-        @ApiResponse(responseCode = "404", description = "Employee not found")
-    })
-    public ResponseEntity<EmployeeResponse> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(employeeUseCase.findById(id));
-    }
-
     @GetMapping
     @Operation(
         summary = "List employees",
@@ -70,6 +60,16 @@ public class EmployeeController {
     @ApiResponse(responseCode = "200", description = "Employee list retrieved successfully")
     public ResponseEntity<List<EmployeeResponse>> findAll() {
         return ResponseEntity.ok(employeeUseCase.findAll());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get employee by ID", description = "Returns a specific employee by ID")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Employee found"),
+        @ApiResponse(responseCode = "404", description = "Employee not found")
+    })
+    public ResponseEntity<EmployeeResponse> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(employeeUseCase.findById(id));
     }
 
     @PutMapping("/{id}")
@@ -94,7 +94,6 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasRole('MANAGER')")
     @Operation(
         summary = "Activate employee",
         description = "Activates an inactive employee, allowing access to the system"
@@ -109,7 +108,6 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}/deactivate")
-    @PreAuthorize("hasRole('MANAGER')")
     @Operation(
         summary = "Deactivate employee",
         description = "Deactivates an employee, removing their access to the system"

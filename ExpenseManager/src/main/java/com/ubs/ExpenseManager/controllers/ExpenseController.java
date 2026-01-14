@@ -48,6 +48,7 @@ public class ExpenseController {
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("!hasRole('ADMIN')")
     @Operation(summary = "Create expense", description = "Creates a new expense in the system with "
         + "receipt image")
     @ApiResponses({
@@ -163,6 +164,31 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/deny/manager")
+    @PreAuthorize("hasRole('MANAGER')")
+    @Operation(
+        summary = "Deny expense (manager)",
+        description = "Denies a pending expense submitted by an employee under the"
+            + " authenticated manager"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Expense denied successfully by manager"),
+        @ApiResponse(responseCode = "404", description = "Expense not found"),
+        @ApiResponse(
+            responseCode = "422",
+            description = """
+                Business rule violation. Possible reasons:
+                - The expense is not in PENDING status
+                - The expense does not belong to the manager's department
+            """
+        )
+    })
+    public ResponseEntity<Void> denyByManager(@PathVariable UUID id) {
+        AuthenticatedUser user = authenticatedUserProvider.getUser();
+        expenseUseCase.deny(id, user);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{id}/approve/finance")
     @PreAuthorize("hasRole('FINANCE')")
     @Operation(
@@ -186,31 +212,6 @@ public class ExpenseController {
     public ResponseEntity<Void> approveByFinance(@PathVariable UUID id) {
         AuthenticatedUser user = authenticatedUserProvider.getUser();
         expenseUseCase.approve(id, user);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{id}/deny/manager")
-    @PreAuthorize("hasRole('MANAGER')")
-    @Operation(
-        summary = "Deny expense (manager)",
-        description = "Denies a pending expense submitted by an employee under the"
-            + " authenticated manager"
-    )
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Expense denied successfully by manager"),
-        @ApiResponse(responseCode = "404", description = "Expense not found"),
-        @ApiResponse(
-            responseCode = "422",
-            description = """
-                Business rule violation. Possible reasons:
-                - The expense is not in PENDING status
-                - The expense does not belong to the manager's department
-            """
-        )
-    })
-    public ResponseEntity<Void> denyByManager(@PathVariable UUID id) {
-        AuthenticatedUser user = authenticatedUserProvider.getUser();
-        expenseUseCase.deny(id, user);
         return ResponseEntity.noContent().build();
     }
 
