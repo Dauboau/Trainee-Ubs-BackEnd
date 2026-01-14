@@ -16,12 +16,15 @@ import com.ubs.ExpenseManager.entities.employee.repository.EmployeeRepository;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.entities.expense.repository.ExpenseRepository;
+import com.ubs.ExpenseManager.exception.BusinessRuleException;
 import com.ubs.ExpenseManager.exception.ConflictException;
 import com.ubs.ExpenseManager.exception.ResourceNotFoundException;
 import com.ubs.ExpenseManager.gateways.CurrencyExchangeGateway;
 import com.ubs.ExpenseManager.gateways.ImageStorageGateway;
 import com.ubs.ExpenseManager.security.auth.AuthenticatedUser;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseDetailResponse;
+import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseReportFilterRequest;
+import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseReportType;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseRequest;
 import com.ubs.ExpenseManager.usecases.expense.dto.ExpenseResponse;
 import com.ubs.ExpenseManager.usecases.expense.states.ExpenseState;
@@ -192,7 +195,6 @@ public class ExpenseUseCase {
         expenseState.approve(expense, employee, hasPendingAlerts);
     }
 
-
     public void deny(UUID id, AuthenticatedUser user) {
         Expense expense = expenseRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
@@ -202,5 +204,59 @@ public class ExpenseUseCase {
 
         ExpenseState expenseState = expenseStateFactory.from(expense);
         expenseState.reject(expense, employee);
+    }
+
+    public List<ExpenseResponse> findApprovedExpenses(ExpenseReportFilterRequest request,
+        ExpenseReportType type) {
+        if (request.dateFrom().isAfter(request.dateTo())) {
+            throw new BusinessRuleException("Date from is after date to");
+        }
+        return switch (type) {
+            case BY_EMPLOYEE -> findByEmployees(request);
+            case BY_CATEGORY -> findByCategories(request);
+            case BY_DEPARTMENT -> findByDepartments(request);
+        };
+    }
+
+    private List<ExpenseResponse> findByEmployees(ExpenseReportFilterRequest request) {
+        if (request.employeeIds() == null || request.employeeIds().isEmpty()) {
+            throw new BusinessRuleException("Employee report requires at least one employeeId");
+        }
+        return expenseRepository.findAllByEmployeeIdInAndFinanceDecisionAndFinanceDecisionDateBetween(
+            request.employeeIds(),
+            DecisionType.APPROVED,
+            request.dateFrom(),
+            request.dateTo()
+        ).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    private List<ExpenseResponse> findByCategories(ExpenseReportFilterRequest request) {
+        if (request.categories() == null || request.categories().isEmpty()) {
+            throw new BusinessRuleException("Expense reports require at least one category");
+        }
+        return expenseRepository.findAllByCategoryInAndFinanceDecisionAndFinanceDecisionDateBetween(
+            request.categories(),
+            DecisionType.APPROVED,
+            request.dateFrom(),
+            request.dateTo()
+        ).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
+    }
+
+    private List<ExpenseResponse> findByDepartments(ExpenseReportFilterRequest request) {
+        if (request.departmentNames() == null || request.departmentNames().isEmpty()) {
+            throw new BusinessRuleException("Expense reports require at least one department");
+        }
+        return expenseRepository.findAllByDepartmentNameInAndFinanceDecisionAndFinanceDecisionDateBetween(
+            request.departmentNames(),
+            DecisionType.APPROVED,
+            request.dateFrom(),
+            request.dateTo()
+        ).stream()
+            .map(ExpenseResponse::fromEntity)
+            .toList();
     }
 }
