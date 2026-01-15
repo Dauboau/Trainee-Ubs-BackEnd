@@ -123,7 +123,7 @@ public class ExpenseController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('FINANCE')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'FINANCE')")
     @Operation(
         summary = "Get expense by id",
         description = "Returns detailed information about a specific expense"
