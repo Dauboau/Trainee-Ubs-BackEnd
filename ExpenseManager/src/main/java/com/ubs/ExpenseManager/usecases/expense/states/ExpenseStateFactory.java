@@ -1,9 +1,10 @@
 package com.ubs.ExpenseManager.usecases.expense.states;
 
 import com.ubs.ExpenseManager.entities.expense.Expense;
-
 import com.ubs.ExpenseManager.usecases.expense.ExpenseProcessor;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Component;
 
 @Component
