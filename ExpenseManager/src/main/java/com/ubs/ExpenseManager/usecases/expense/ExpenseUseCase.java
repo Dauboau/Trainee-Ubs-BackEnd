@@ -53,7 +53,6 @@ public class ExpenseUseCase {
     private final AlertRepository alertRepository;
     private final CurrencyExchangeGateway currencyExchangeGateway;
     private final ImageStorageGateway storageGateway;
-    private final ExpenseProcessor expenseProcessor;
     private final ExpenseStateFactory expenseStateFactory;
 
     public ExpenseResponse create(ExpenseRequest request, AuthenticatedUser user) {
@@ -96,7 +95,6 @@ public class ExpenseUseCase {
         try {
             Expense savedExpense = expenseRepository.save(expense);
             expenseRepository.flush();
-            expenseProcessor.process(savedExpense);
             return ExpenseResponse.fromEntity(savedExpense);
         } catch (DataIntegrityViolationException ex) {
             throw new ConflictException("Expense already exists");

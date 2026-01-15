@@ -4,10 +4,16 @@ import com.ubs.ExpenseManager.entities.employee.Employee;
 import com.ubs.ExpenseManager.entities.expense.Expense;
 import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
 import com.ubs.ExpenseManager.exception.UnauthorizedException;
+import com.ubs.ExpenseManager.usecases.expense.ExpenseProcessor;
 
 import java.time.OffsetDateTime;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class PendingState implements ExpenseState {
+
+    private final ExpenseProcessor expenseProcessor;
 
     @Override
     public void approve(Expense expense, Employee employee, boolean hasActiveAlerts) {
@@ -18,6 +24,7 @@ public class PendingState implements ExpenseState {
 
         expense.setManagerDecisionDate(OffsetDateTime.now());
         expense.setManagerDecision(DecisionType.APPROVED);
+        expenseProcessor.process(expense);
         expense.setManager(employee);
     }
 
