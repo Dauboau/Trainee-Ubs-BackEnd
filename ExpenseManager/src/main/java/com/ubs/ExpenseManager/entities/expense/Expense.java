@@ -1,25 +1,44 @@
 package com.ubs.ExpenseManager.entities.expense;
 
 import com.ubs.ExpenseManager.config.UuidV7;
+import com.ubs.ExpenseManager.entities.department.Department;
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
-import jakarta.persistence.*;
-import lombok.*;
+import com.ubs.ExpenseManager.entities.employee.Employee;
+import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Map;
+import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.UUID;
 
-import com.ubs.ExpenseManager.entities.department.Department;
-import com.ubs.ExpenseManager.entities.employee.Employee;
-import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
-import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
-import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
+import org.jspecify.annotations.NonNull;
 
 @Entity
 @Table(name = "expenses")
@@ -123,4 +142,23 @@ public class Expense {
         
         return ExpenseStatus.PENDING;
     }
+
+    public @NonNull Result getMonthlyInterval() {
+        OffsetDateTime endOfMonth =
+                this.date
+                        .with(TemporalAdjusters.lastDayOfMonth())
+                        .toLocalDate()
+                        .atTime(LocalTime.MAX)
+                        .atOffset(date.getOffset());
+
+        OffsetDateTime beginningOfMonth =
+                this.date
+                        .with(TemporalAdjusters.firstDayOfMonth())
+                        .toLocalDate()
+                        .atTime(LocalTime.MIN)
+                        .atOffset(date.getOffset());
+        return new Result(beginningOfMonth, endOfMonth);
+    }
+
+    public record Result(OffsetDateTime beginningOfMonth, OffsetDateTime endOfMonth) {}
 }

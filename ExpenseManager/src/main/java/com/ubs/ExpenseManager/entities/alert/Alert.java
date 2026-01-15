@@ -1,20 +1,33 @@
 package com.ubs.ExpenseManager.entities.alert;
 
 import com.ubs.ExpenseManager.config.UuidV7;
+import com.ubs.ExpenseManager.entities.alert.enums.AlertStatus;
+import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
+import com.ubs.ExpenseManager.entities.expense.Expense;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.type.SqlTypes;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import java.time.Instant;
 import java.util.UUID;
 
-import com.ubs.ExpenseManager.entities.alert.enums.AlertStatus;
-import com.ubs.ExpenseManager.entities.alert.enums.AlertType;
-import com.ubs.ExpenseManager.entities.expense.Expense;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "alerts")
@@ -54,4 +67,10 @@ public class Alert {
     @UpdateTimestamp
     @Column
     private Instant updatedAt;
+
+    public Alert(Expense expense, AlertType alertType, String message) {
+        this.expense = expense;
+        this.type = alertType;
+        this.message = message;
+    }
 }

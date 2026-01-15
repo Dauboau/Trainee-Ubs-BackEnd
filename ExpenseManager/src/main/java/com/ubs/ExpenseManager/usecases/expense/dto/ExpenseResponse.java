@@ -1,14 +1,15 @@
 package com.ubs.ExpenseManager.usecases.expense.dto;
 
+import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
+import com.ubs.ExpenseManager.entities.expense.Expense;
+import com.ubs.ExpenseManager.entities.expense.enums.DecisionType;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
+import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-
-import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
-import com.ubs.ExpenseManager.entities.expense.Expense;
-import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
-import com.ubs.ExpenseManager.entities.expense.enums.ExpenseStatus;
 
 public record ExpenseResponse(
     UUID id,
@@ -21,6 +22,8 @@ public record ExpenseResponse(
     BigDecimal exchangeRate,
     String description,
     String receiptUrl,
+    ManagerDecisionInfo managerDecision,
+    FinanceDecisionInfo financeDecision,
     Boolean revision,
     Instant createdAt,
     Instant updatedAt,
@@ -38,10 +41,32 @@ public record ExpenseResponse(
             expense.getExchangeRate(),
             expense.getDescription(),
             expense.getReceiptUrl(),
+            expense.getManager() != null ? new ManagerDecisionInfo(
+                expense.getManager().getId(),
+                expense.getManagerDecision(),
+                expense.getManagerDecisionDate()
+            ) : null,
+            expense.getFinance() != null ? new FinanceDecisionInfo(
+                expense.getFinance().getId(),
+                expense.getFinanceDecision(),
+                expense.getFinanceDecisionDate()
+            ) : null,
             expense.getRevision(),
             expense.getCreatedAt(),
             expense.getUpdatedAt(),
             expense.getStatus()
         );
     }
+
+    public record ManagerDecisionInfo(
+        UUID managerId,
+        DecisionType decision,
+        OffsetDateTime decisionDate
+    ) {}
+
+    public record FinanceDecisionInfo(
+        UUID financeId,
+        DecisionType decision,
+        OffsetDateTime decisionDate
+    ) {}
 }

@@ -2,13 +2,27 @@ package com.ubs.ExpenseManager.entities.department;
 
 import com.ubs.ExpenseManager.entities.department.enums.SpendingType;
 import com.ubs.ExpenseManager.entities.expense.enums.ExpenseCategory;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "spending_settings")
@@ -50,5 +64,11 @@ public class SpendingSetting {
     @Transient
     public SpendingType getType() {
         return id != null ? id.getType() : null;
+    }
+    //NOTE: Consider adding column to track author of change.
+
+    public SpendingSetting(SpendingSettingId id, BigDecimal budget) {
+        this.id = id;
+        this.budget = budget;
     }
 }

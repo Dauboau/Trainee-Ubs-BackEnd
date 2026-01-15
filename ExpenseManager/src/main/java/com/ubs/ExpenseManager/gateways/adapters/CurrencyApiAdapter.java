@@ -3,6 +3,10 @@ package com.ubs.ExpenseManager.gateways.adapters;
 import com.ubs.ExpenseManager.entities.department.enums.CurrencyCode;
 import com.ubs.ExpenseManager.gateways.CurrencyExchangeGateway;
 import com.ubs.ExpenseManager.gateways.dto.CurrencyApiAdapterResponse;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,9 +15,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @Component
 @RequiredArgsConstructor
